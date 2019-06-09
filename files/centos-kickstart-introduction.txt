@@ -1,0 +1,139 @@
+kickstart选项指令段的说明：
+【必须的选项】：
+
+1.auth或者authconfig :验证选项
+    --useshadow或者--enableshadow启用shadow文件来验证
+    --passalgo=sha512使用sha512算法
+2.bootloader: 指定如何安装引导程序，要求必须已选择分区、已选择引导程序、已选择软件包，如果没选择将会停止而不会询问
+    --location=mbr 指定引导程序的位置，默认为mbr，还可以指定none或者包含bootloader的引导块所在分区
+    --driveorder=sda 指定grub安装在哪个分区以及指定寻找顺序，--driverorder=sda sdc sdb
+    --append="crashkernel=auto rhgb quiet" 指定内核参数
+3.keyboard：指定键盘类型，一般使用美式键盘"keyboard us"，新版的kickstart的格式有所变化，但也支持"keyboard us"这样的老格式
+4.lang：指定语言，如"lang en_US.UTF-8"5.rootpw：设置root用户的密码
+    --iscrypted:使用加密密码，可以使用MD5,SHA-256,sha-512等。
+        如：rootpw  --iscrypted $6$kxEBpy0HqHiY2Tsx$FTAqbjHs6x0VruChfYKxVeKLlxPuY0LXK7RxAVdu3uUivGclMUEz.i4ARlsMpqe1bf379uEgWOSFqGtZxqrwg.
+        其中SHA-512位的加密密码在CentOS 6上可以使用"grub-crypt --sha-512"生成，CentOS7上可以使用python等工具来生成，如下：
+        python -c 'import crypt,getpass;pw=getpass.getpass();print(crypt.crypt(pw) if (pw==getpass.getpass("Confirm: ")) else exit())'     
+【可选的选项】：
+
+1.selinux：设置selinux，值为enforcing,permissice,disable之一
+2.autostep: 交互式，和interactive类似
+3.interactive: 使用kickstart文件指定的参数交互式安装，但仍会给出每一步的选择项，如果直接下一步就使用kickstart参数
+4.cmdline：在完全非交互的命令行模式下进行安装
+5.driverdisk：指定驱动程序所在位置
+    drvierdisk --source=
+6.firewall：设置firewall
+    --disable禁用防火墙
+7.firstboot：
+    --disable：安装后第一次启动默认会给出很多需要手动配置的界面，禁用它
+8.graphical：在图形模式下根据kickstart执行安装，默认该选项
+9.text：文本模式下根据kickstart执行安装（既然使用kickstart了，当然建议选择使用纯文本模式而不是图形模式了）
+ 9.1 skipx：不安装图形工具
+10.halt/reboot：安装完成后关机还是reboot，默认是halt
+11.ignoredisk：指定忽略的磁盘
+12.install/upgrade：指定是安装还是升级系统
+    对于install，还必须指定下面几种安装方式之一：
+        cdrom：指定从第一个光盘驱动器安装
+        harddrive：指定从本地硬盘安装，要求硬盘必须是vfat或者ext2文件系统格式
+            --biospart：指定从bios类型的分区来安装，如82文件系统类型号的分区
+            --partition：从某个分区安装
+            --dir：指定从包含install-tree（安装树）的目录安装
+                例如：harddrive --partition=hdb2 --dir=/tmp/install-tree
+        nfs：指定从nfs路径安装
+            --server:指定nfs服务器主机名或IP
+            --dir:指定包含install-tree的目录
+            --opts:指定挂载NFS的mount选项            如：nfs --server=172.16.10.10 --dir=/export_path
+        url：指定从ftp、http、https安装
+             例如：url --url ftp://172.16.10.10
+13.loggin：指定安装过程中的错误日志位置
+    --host:指定日志将发送到那台主机上
+    --port:如果远程主机的rsyslog使用非默认端口，则应该指定该端口选项
+    --levle:指定日志级别
+14.network：为系统配置网络信息，并在安装过程中激活该网络设备。可多次使用network指令，例如既设置网络，又设置主机名
+    --bootproto:dhcp或static；对于static则必须指定IP地址、子网掩码、网关和DNS
+    --device：网卡名，可以使用eth0类似的名称来指定
+    --hostname:指定主机名
+    --onboot：是否在引导系统时启用指定的设备
+        如：
+        network --bootproto=static --ip=192.168.100.2 --netmask=255.255.255.0 --gateway=192.168.100.254 --nameserver=8.8.8.8
+        network --bootproto=dhcp --device=eth0 --noipv6
+        network --hostname=node1.xuexi.com
+15.autopart: 自动创建几个分区：大于1G的根分区，250M的boot分区和swap分区
+16.zerombr：清除磁盘的mbr
+17.clearpart: 在安装系统前清除分区，如果指定该选项则必须指定正确
+    --all:清除所有分区
+    --Linux：清除Linux分区
+    --none：不清除分区
+    --initlabel：创建标签，对于没有MBR或者GPT的新硬盘，该选项是必须的
+    --drivers=sdb：清除指定的分区
+    所以，clearpart --all --initlabel是常见的方式
+18.part：创建分区
+    --asprimary:强制指定为主分区
+    --grow：使用所有可用空间，即为其分配所有剩余空间。对于根分区至少需要3G空间（即使是--grow，也还是需要指定--size）
+    --ondisk：指定在哪块磁盘上创建分区。如果有多块磁盘，则需要指定在哪块磁盘上创建哪个分区，只有一块硬盘时可以省略该选项
+        如：
+            #part /boot --fstype=ext4 --asprimary --size=200     #boot分区200-250M足以
+            #part swap --fstype=swap --asprimary --size=2048             
+            #part / --fstype=ext4 --grow --asprimary  --size=2000
+LVM的分区方法：
+part /boot --fstype ext4 --size=100
+part swap --fstype=swap --size=2048
+part pv26 --size=100 --grow
+volgroup VG00 --pesize=32768 pv26
+logvol / --fstype ext4 --name=LVroot --vgname=VG00 --size=29984
+logvol /data --fstype ext4 --name=LVdata --vgname=VG00 --size=100 --grow        
+            
+19.repo：指定除自带的yum源外的其他yum源，可以指定多行yum源（既然是第一次装系统，基本都不会去加这项）
+    如：repo --name="CentOS"  --baseurl=cdrom:sr0 --cost=100
+20.services：设置默认运行级别下开机自启动的服务
+    --disable
+    --enable
+        disable先处理enable后处理
+        如services --disable auditd,cups,atd
+21.timezone：指定时区
+    如：Asia/Shanghai
+22.user：在系统中生成一个新用户
+    --name：指定用户名
+    --groups：指定辅助组，非默认组
+    --homedir：用户家目录，如果不指定则默认为/home/<username>
+    --password：该用户的密码，如果不指定或省略则创建后该用户处于锁定状态
+    --shell：用户的shell，不指定则默认
+    --uid：用户UID，不指定则自动分配一个非系统用户的UID
+23.key：输入序列号，只在RedHat中有，CentOS系统没有该项
+    --skip  跳过key选项
+
+【kickstart软件包或包组选项】
+
+使用"%packages"表示该段内容,@表示选择的包组，最前面使用横杠表示取反，即不选择的包或包组。
+@base和@core两个包组总是被默认选择，所以不必在%packages中指定它们
+
+以下为一个Centos7示列：
+
+#version=DEVEL
+install
+auth --enableshadow --passalgo=sha512
+text
+lang en_US.UTF-8
+keyboard --vckeymap=us --xlayouts='us'
+network --onboot=on --device=ens33  --bootproto=dhcp --activate --ipv6=auto
+rootpw newpassword
+firewall --service=ssh
+url --url=http://172.18.20.225/Centos7.5
+selinux --disabled
+timezone Asia/Shanghai --isUtc
+bootloader --location=mbr --driveorder=sda --append="crashkernel=auto"
+zerombr
+clearpart --none --initlabel
+reboot
+part /boot --fstype=ext4 --ondisk=sda --size=400
+part swap  --ondisk=sda --size=4000
+part / --fstype=ext4 --ondisk=sda --grow --size=200
+  
+%packages
+@^minimal
+@core
+%end
+  
+%addon com_redhat_kdump --disable --reserve-mb='auto'
+  
+%end

@@ -1,0 +1,110 @@
+### Install vm-tools on CentOS 6 minimal
+  # yum -y install perl fuse-libs   
+  # mount /dev/cdrom /mnt/  
+  # cp /mnt/VMwareTools....tar.gz /tmp  
+  # cd /tmp  
+  # tar -zxvf VMwareTools....tar.gz  
+  # cd vmware-tools-distrib  
+  # ./vmware-install.pl  
+  Start vmtools service manually  
+  # /etc/vmware-tools/services.sh start
+### Examples of iptables configuration
+  # cat /etc/sysconfig/iptables  
+- **ip range**
+```
+-A INPUT -m iprange --src-range 172.17.0.0-172.25.255.255 -p tcp --dport 139 -j ACCEPT
+-A INPUT -m iprange --src-range 172.17.0.0-172.25.255.255 -p tcp --dport 445 -j ACCEPT
+```
+
+- **ip source**
+```
+-A INPUT -i eth0 -s 192.168.100.0/24 -p tcp --dport 3128 -m state --state NEW,ESTABLISHED -j ACCEPT
+```
+- **multi port**  
+```
+-A INPUT -p tcp -m multiport --dports 22,53,80 -j ACCEPT
+```
+- **recent module**  
+```
+-A INPUT -p tcp --dport 22 -i eth0 -m state --state NEW -m recent --set
+-A INPUT -p tcp --dport 22 -i eth0 -m state --state NEW -m recent --update --seconds 60 --hitcount 4 -j DROP
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
+```
+### NFS Server configuration
+**Install NFS Server from Packages**  
+ # yum nfs-utils -y  
+**Configure NFS user's access**  
+ # vi /etc/exports  
+```
+/home/library 172.17.105.0/24(rw,all_squash,anonuid=500,anongid=500,sync)
+```
+ # useradd vsphere -M -s /sbin/nologin  
+ # passwd vsphere  
+ # mkdir /home/library  
+ # chown vsphere:vsphere /home/library  
+**Configure NFS server port**  
+ # vi /etc/sysconfig/nfs  
+```
+RQUOTAD_PORT=1001
+LOCKD_TCPPORT=30001
+LOCKD_UDPPORT=30001
+MOUNTD_PORT=1002
+```
+**Show NFS service port listening**  
+ # rpcinfo -p  
+**Add NFS server port to iptables**  
+ # vi /etc/sysconfig/iptables
+```
+-A INPUT -s 172.17.105.0/24 -p tcp -m multiport --dport 111,875,892,32769,32803 -j ACCEPT
+-A INPUT -s 172.17.105.0/24 -p udp -m multiport --dport 111,875,892,32769,32803 -j ACCEPT
+```
+**Start services**  
+ # /etc/init.d/rpcbind start  
+ # /etc/init.d/nfs start  
+ # chkconfig --level 3 rpcbind on  
+ # chkconfig --level 3 nfs on  
+**NFS Client**  
+CentOS  
+ # yum install showmount -y  
+Ubuntu  
+ # sudo apt-get install nfs-common  
+**Mount NFS**  
+ # mount -t nfs 172.17.105.127:/home/library  /mnt
+### NTP Server Configuration
+**Modify configuration file**  
+ # cat /etc/ntp.conf  
+```
+restrict 172.17.0.0 mask 255.255.0.0 nomodify
+restrict 172.25.0.0 mask 255.255.0.0 nomodify
+server ntp1.aliyun.com iburst
+```
+**Add port to iptables**  
+ # cat /etc/sysconfig/iptables  
+```
+-A INPUT -p udp --dport 123 -j ACCEPT
+```
+**Start service**  
+ # /etc/init.d/ntpd restart  
+ # /etc/init.d/iptables restart  
+ # chkconfig --level 3 ntpd on  
+**Query NTP Server current state**  
+ # ntpq -p
+### IPMI Tool
+  **Check BMC Controllor**  
+  # dmidecode -t 38  
+  **Check IPMI tool whether intalled or not**  
+  # rpm -qa | grep -i ipmi  
+  **Install IPMI tool**  
+  # yum install ipmitool -y  
+  **Load kernel module**  
+  # modprobe ipmi_watchdog  
+  # modprobe ipmi_poweroff  
+  # modprobe ipmi_devintf  
+  # modprobe ipmi_si  
+  # modprobe ipmi_msghandler  
+  **Examples ipmitool command**  
+  # ipmitool -I open sdr  
+  # ipmitool sensor get "CPU 1 TEMP"  
+  # ipmitool sdr entity 12.1  
+  # ipmitool lan print  
+  # ipmitool user list 1  

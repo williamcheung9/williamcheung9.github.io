@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Cobbler - ITOps Notes</title>
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/docco.min.css">
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap-3.0.3.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
+
+                <!-- Collapsed navigation -->
+                <div class="navbar-header">
+                    <!-- Expander button -->
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="..">ITOps Notes</a>
+                </div>
+
+                <!-- Expanded navigation -->
+                <div class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li >
+                                <a href="..">Home</a>
+                            </li>
+                            <li >
+                                <a href="../centos6/">CentOS6</a>
+                            </li>
+                            <li >
+                                <a href="../centos7/">CentOS7</a>
+                            </li>
+                            <li >
+                                <a href="../ubuntu/">Ubuntu18</a>
+                            </li>
+                            <li >
+                                <a href="../windows/">Windows</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="main active"><a href="#cobbler-reference-docs">Cobbler Reference Docs</a></li>
+        <li class="main "><a href="#install-cobbler-on-centos-7">Install Cobbler on Centos 7</a></li>
+        <li class="main "><a href="#configure-os-image">Configure os image</a></li>
+        <li class="main "><a href="#examples-of-kickstart-files">Examples of kickstart files</a></li>
+        <li class="main "><a href="#cobbler-web">Cobbler Web</a></li>
+        <li class="main "><a href="#boot-file-configuration">Boot file configuration</a></li>
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<h3 id="cobbler-reference-docs">Cobbler Reference Docs</h3>
+<p><a href="https://access.redhat.com/documentation/en-us/red_hat_network_satellite/5.3/html/reference_guide/ch-cobbler">Rehat Documentation about Cobbler</a><br />
+<a href="/files/centos-kickstart-introduction.txt">Centos kickstart introduction</a></p>
+<h3 id="install-cobbler-on-centos-7">Install Cobbler on Centos 7</h3>
+<p><strong>Disable Firewall</strong><br />
+ # systemctl stop firewalld<br />
+ # systemctl disable firewalld<br />
+<strong>Disable SELinux</strong><br />
+ # vi /etc/selinux/config</p>
+<pre><code>SELINUX=disabled
+</code></pre>
+
+<p><strong>Install EPEL repository</strong><br />
+ # rpm -ivh https://mirrors.aliyun.com/centos/7.6.1810/extras/x86_64/Packages/epel-release-7-11.noarch.rpm<br />
+<strong>Install cobbler</strong><br />
+ # yum install httpd tftp dhcp cobbler cobbler-web pykickstart xinetd -y<br />
+ # yum install debmirror.noarch -y<br />
+<strong>Start service</strong><br />
+ # systemctl start httpd<br />
+ # systemctl enable httpd <br />
+ # systemctl start cobblerd<br />
+ # systemctl enable cobblerd<br />
+<strong>Run cobbler check</strong><br />
+ # cobbler check<br />
+ # vi /etc/cobbler/settings</p>
+<pre><code>server: 192.168.152.101
+next_server: 192.168.152.101
+</code></pre>
+
+<p># vim /etc/xinetd.d/tftp</p>
+<pre><code>disable=no
+</code></pre>
+
+<p># vim /etc/cobbler/settings</p>
+<pre><code>proxy_url_ext: http://172.16.2.199:80
+</code></pre>
+
+<p># systemctl restart cobblerd<br />
+ # cobbler get-loaders --force<br />
+<strong>Start rsync service</strong><br />
+ # systemctl start rsyncd<br />
+<strong>Modify default password</strong><br />
+ # openssl passwd -1 -salt 'cobbler' 'cobbler'<br />
+ # vim /etc/cobbler/settings</p>
+<pre><code>default_password_crypted
+</code></pre>
+
+<p><strong>Configure DHCP template</strong><br />
+ # vim /etc/cobbler/settings</p>
+<pre><code> manage_dhcp: 1
+</code></pre>
+
+<p># vim /etc/cobbler/dhcp.template<br />
+<strong>Rum cobbler sync</strong><br />
+ # systemctl start xinetd<br />
+ # systemctl restart cobblerd<br />
+ # cobbler sync</p>
+<h3 id="configure-os-image">Configure os image</h3>
+<p><strong>Import OS image file</strong><br />
+ # mount /dev/cdrom /mnt<br />
+ # cobbler import --path=/mnt/ --name=CentOS-6.10-x86_64 --arch=x86_64<br />
+<strong>Custom kickstrat file</strong><br />
+ # vi /var/lib/cobbler/kickstarts/centos7-x86_64.ks<br />
+ # cobbler profile edit --name=CentOS-7-x86_64 --kickstart=/var/lib/cobbler/kickstarts/centos7-x86_64.ks<br />
+ # cobbler sync<br />
+<strong>View cobbler profile</strong><br />
+ # cobbler profile list<br />
+ # cobbler profile report --name=CentOS-6.10-x86_64</p>
+<h3 id="examples-of-kickstart-files">Examples of kickstart files</h3>
+<p><strong>Centos 7 on legacy bios</strong></p>
+<pre><code># This kickstart file should only be used for installing CentOS 7.
+
+#platform=x86, AMD64, or Intel EM64T
+# System authorization information
+auth  --useshadow  --enablemd5
+# System bootloader configuration
+bootloader --location=mbr
+# Partition clearing information
+clearpart --all --initlabel
+# Use text mode install
+text
+# Firewall configuration
+firewall --enabled
+# Run the Setup Agent on first boot
+firstboot --disable
+# System keyboard
+keyboard us
+# System language
+lang zh_CN.UTF-8 
+# Use network installation
+url --url=$tree
+# Network information
+$SNIPPET('network_config')
+# Reboot after installation
+reboot
+
+#Root password
+rootpw --iscrypted $default_password_crypted
+# SELinux configuration
+selinux --enforcing
+# Do not configure the X Window System
+skipx
+# System timezone
+timezone  Asia/Shanghai
+# Install OS instead of upgrade
+install
+# Clear the Master Boot Record
+zerombr
+# Allow anaconda to partition the system as needed
+part /boot --fstype=ext4 --ondisk=sda --size=500
+part swap  --ondisk=sda --size=16384
+part / --fstype=ext4 --ondisk=sda --grow --size=5000
+
+%pre
+$SNIPPET('log_ks_pre')
+$SNIPPET('kickstart_start')
+$SNIPPET('pre_install_network_config')
+# Enable installation monitoring
+$SNIPPET('pre_anamon')
+%end
+
+%packages
+$SNIPPET('func_install_if_enabled')
+%end
+
+%addon com_redhat_kdump --disable --reserve-mb='auto'
+%end
+
+%post --nochroot
+$SNIPPET('log_ks_post_nochroot')
+%end
+
+%post
+$SNIPPET('log_ks_post')
+
+----------
+
+$SNIPPET('post_install_kernel_options')
+$SNIPPET('post_install_network_config')
+$SNIPPET('func_register_if_enabled')
+$SNIPPET('download_config_files')
+$SNIPPET('koan_environment')
+$SNIPPET('redhat_register')
+$SNIPPET('cobbler_register')
+# Enable post-install boot notification
+$SNIPPET('post_anamon')
+# Start final steps
+$SNIPPET('kickstart_done')
+# End final steps
+%end
+
+</code></pre>
+
+<p><strong>Centos 7 on uefi bios</strong></p>
+<pre><code># This kickstart file should only be used for installing CentOS 7.
+
+#platform=x86, AMD64, or Intel EM64T
+auth --enableshadow --passalgo=sha512
+url --url=$tree
+text
+firstboot --disable
+firewall --enabled
+ignoredisk --only-use=sda
+selinux --enforcing
+reboot
+keyboard us
+lang zh_CN.UTF-8
+network  --bootproto=dhcp --hostname=Centos7 --device=ens33  --activate
+rootpw --iscrypted $default_password_crypted
+timezone Asia/Shanghai
+bootloader --append=&quot; crashkernel=auto&quot; --location=mbr --boot-drive=sda
+clearpart --none --initlabel
+
+part /boot/efi --fstype=&quot;efi&quot; --ondisk=sda --size=1024
+part swap --fstype=&quot;swap&quot; --size=16384
+part / --fstype=&quot;xfs&quot; --grow --size=102400
+
+%pre
+parted -s /dev/sda mklabel gpt
+%end
+
+%addon com_redhat_kdump --disable --reserve-mb='auto'
+%end
+
+%packages
+@^minimal
+@core
+kexec-tools
+%end
+</code></pre>
+
+<h3 id="cobbler-web">Cobbler Web</h3>
+<p>https://192.168.152.101/cobbbler_web<br />
+username: cobbler password: cobbler<br />
+<strong>Note</strong>:Cobbler web can't work on python django editon newer than 1.8<br />
+<strong>Install Django 1.8.17</strong><br />
+ # rpm -e --nodeps python2-django<br />
+ # yum install python2-pip<br />
+ # pip install --upgrade pip<br />
+ # pip install Django==1.8.17  </p>
+<h3 id="boot-file-configuration">Boot file configuration</h3>
+<p><strong>UEFI BIOS boot file</strong><br />
+ # cat /etc/cobbler/pxe/efidefault.template</p>
+<pre><code>default=0
+timeout=30
+title local
+    quit
+$grub_menu_items
+</code></pre>
+
+<p><strong>Legacy BIOS boot file</strong><br />
+ # cat /etc/cobbler/pxe/pxedefault.template</p>
+<pre><code>DEFAULT menu
+PROMPT 0
+MENU TITLE Cobbler | http://cobbler.github.io/
+TIMEOUT 200
+TOTALTIMEOUT 6000
+ONTIMEOUT $pxe_timeout_profile
+
+LABEL local
+        MENU LABEL (local)
+        MENU DEFAULT
+        LOCALBOOT -1
+
+$pxe_menu_items
+
+MENU end
+</code></pre></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js" defer></script>
+        <script src="../search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form role="form">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="Keyboard Shortcuts Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Keyboard Shortcuts</h4>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

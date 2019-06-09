@@ -1,0 +1,182 @@
+### Zabbix 4.0 reference documentation
+- [Official documentation](https://www.zabbix.com/documentation/4.0/start)  
+- [Agent download](https://www.zabbix.com/download_agents#tab:40LTS)  
+- [VMware monitoring](https://www.zabbix.com/documentation/4.0/manual/vm_monitoring)  
+- [Windows specific item keys](https://www.zabbix.com/documentation/4.0/manual/config/items/itemtypes/zabbix_agent/win_keys)
+- [Supported trigger functions](https://www.zabbix.com/documentation/4.0/manual/appendix/triggers/functions)
+- [The parameters supported in a Zabbix agent configuration file](https://www.zabbix.com/documentation/4.0/manual/appendix/config/zabbix_agentd)
+- [Custom alertscripts](https://www.zabbix.com/documentation/4.0/manual/config/notifications/media/script)
+### Install Zabbix Server 4.0
+**Disable selinux**  
+ # vi /etc/selinux/config
+```
+SELINUX=disabled
+```
+**Adding Zabbix repository**  
+ # rpm -ivh https://repo.zabbix.com/zabbix/4.0/rhel/7/x86_64/zabbix-release-4.0-1.el7.noarch.rpm   
+ # yum -y install yum-utils  
+ # yum-config-manager --enable rhel-7-server-optional-rpms  
+**Use aliyun Zabbix repository**   
+ # vi /etc/yum.repos.d/zabbix.repo
+```
+[zabbix]  
+baseurl=http://mirrors.aliyun.com/zabbix/zabbix/4.0/rhel/7/$basearch/
+[zabbix-non-supported]
+baseurl=http://mirrors.aliyun.com/zabbix/non-supported/rhel/7/$basearch/
+```
+**Install Zabbix Server,Mariadb**  
+ # yum install zabbix-server-mysql -y  
+ # yum install zabbix-web-mysql -y  
+ # yum install mariadb-server.x86_64 -y  
+**Initialize database**  
+ # systemctl start mariadb  
+ # mysql_secure_installation  
+ # mysql -u root -p  
+ mysql> create database zabbix character set utf8 collate utf8_bin;  
+ mysql> grant all privileges on zabbix.* to zabbix@localhost identified by 'PASSWORD';  
+ mysql> quit;  
+ # zcat /usr/share/doc/zabbix-server-mysql*/create.sql.gz | mysql -uzabbix -p zabbix  
+**Configure database for Zabbix server**  
+ # vi /etc/zabbix/zabbix_server.conf
+```
+DBHost=localhost
+DBName=zabbix
+DBUser=zabbix  
+DBPassword=<password>
+```
+**Zabbix frontend configuration**  
+ # vi /etc/httpd/conf.d/zabbix.conf
+```
+php_value date.timezone Asia/Shanghai
+```
+**Install Zabbix Agent**  
+ # yum install zabbix-agent -y  
+**Starting Zabbix server process**  
+ # systemctl start httpd  
+ # systemctl start zabbix-server  
+ # systemctl start zabbix-agent  
+**Add http/agent port in firewalld**  
+ # firewall-cmd --zone=public --add-port=80/tcp --permanent  
+ # firewall-cmd --zone=public --add-port=10051/tcp --permanent  
+ # firewall-cmd --reload
+### Configure Zabbix Server
+**Login**  
+http://192.168.152.100/zabbix  
+username:Admin passowrd:zabbix  
+**Use Zabbix-get for getting data from agent**  
+ # yum install zabbix-get -y  
+ # zabbix_get -s 192.168.1.106 -p 10050 -k "system.cpu.load[all]"  
+**Raplace default font to support chinese simplified**  
+ # cp msyh.ttf /usr/share/zabbix/fonts  
+ # cd /usr/share/zabbix/include  
+ # vim defines.inc.php
+### Monitor VMware vCenter Server
+ # vi /etc/zabbix/zabbix_server.conf
+```
+StartVMwareCollectors=5
+VMwareFrequency=180
+VMwarePerfFrequency=180
+VMwareCacheSize=8M
+VMwareTimeout=10
+```
+ # systemctl restart zabbix-server  
+ Choose Template VM VMware for vCenter Server  
+ Set the host macros for VMware authentication  
+ {$URL} VMware (vCenter or ESX hypervisor) SDK URL (https://servername/sdk)  
+ {$USERNAME} user@vsphere.local  
+ {$PASSWORD} 
+### Monitor Windows Server
+#### - Install Zabbix-agent
+```
+SET INSTALLFOLDER=C:\Program Files\Zabbix Agent
+
+msiexec /l*v log.txt /i zabbix_agent-4.0.6-win-amd64-openssl.msi /qn^
+ LOGTYPE=file^
+ LOGFILE="%INSTALLFOLDER%\zabbix_agentd.log"^
+ ENABLEREMOTECOMMANDS=0^
+ SERVER=172.17.105.117^
+ LISTENPORT=10050^
+ SERVERACTIVE=172.17.105.117^
+ HOSTNAME="%COMPUTERNAME%"^
+ TLSCONNECT=unencrypted^
+ TLSACCEPT=unencrypted^
+ INSTALLFOLDER="%INSTALLFOLDER%"
+```
+#### - Eventlog
+**Key**  
+eventlog[name,regexp,severity,source,eventid,maxlines,mode]  
+**Introduction**  
+**name** - name of event log  
+**regexp** - regular expressiondescribing the required pattern  
+**severity** - regular expressiondescribing severity  
+The parameter accepts the following values:  
+“Information”, “Warning”, “Error”, “Critical”, “Verbose”  
+In older Zabbix versions running on any Windows version it would be“Information”, “Warning”, “Error”, “Failure Audit”, “Success Audit”  
+**source** - regular expressiondescribing source identifier  
+**eventid** - regular expressiondescribing the event identifier(s)  
+**maxlines** - maximum number of new lines per second the agent will send to Zabbix server or proxy. This parameter overrides the value of 'MaxLinesPerSecond' in zabbix_agentd.win.conf  
+**mode** - possible values:  
+all (default), skip (skip processing of olderdata)  
+**Note**:The item must be configured as zabbix active mode  
+**Examples**  
+eventlog[Security,,"Failure Audit",,^(529|680)$]  
+eventlog[System,,"Warning|Error"]  
+eventlog[Security,,"Failure Audit",,^4625$,,skip]  
+eventlog[Application,,"Warning",^Symantec,^400$,,skip]
+#### - Performance monitor
+perf_counter["\Forefront TMG Web Proxy\Cache Hit Ratio for Last 10K Requests (%)"]
+#### - Count active process
+proc.num[java.exe]
+### Monitor Linux Server
+#### - Zabbix Agent active configuration
+ # sed -i 's/# StartAgents=3/StartAgents=0/' /etc/zabbix/zabbix_agentd.conf  
+ # sed -i 's/ServerActive=127.0.0.1/ServerActive=192.168.152.100/' /etc/zabbix/zabbix_agentd.conf  
+ # sed -i 's/Hostname=Zabbix server/Hostname='$HOSTNAME'/' /etc/zabbix/zabbix_agentd.conf
+#### - Selinux deny Zabbix agent starting
+ # yum -y install policycoreutils-python.x86_64  
+ # cat /var/log/audit/audit.log | grep zabbix | grep denied | audit2allow -M zabbix-agent  
+ # semodule -i zabbix-agent.pp   
+ # yum -y install policycoreutils-python.x86_64  
+ # semanage permissive -a zabbix_agent_t
+#### - Monitor Linux Login
+Use Zabbix agent active and authorize read privilege of secure log file for zabbix user  
+ # setfacl -m u:zabbix:r-- /var/log/secure  
+ # sed -i '/kill/a\/usr\/bin\/setfacl -m u:zabbix:r-- \/var\/log\/secure' /etc/logrotate.d/syslog
+#### - Examples of customized key
+**Create customized key "ambient.temp"**  
+ # vi /etc/zabbix/zabbix_agentd.d/userparameter_ambient.temp.conf
+```
+UserParameter=ambient.temp,sudo /usr/bin/ipmitool sdr entity 12.1 | awk 'NR==1{print $10}'
+```
+**Allocate sudo privilege for zabbix user**  
+ # visudo
+```
+#Defaults    requiretty
+zabbix	ALL=(ALL)	NOPASSWD: ALL
+```
+**Restart zabbix agent**  
+ # /etc/init.d/zabbix-agent restart  
+**Timeout while executing a shell script**  
+ # vi /etc/zabbix/zabbix_agentd.conf
+```
+Timeout=10
+```
+**Create customized key "db.backup[\*]"**  
+ # vi /etc/zabbix/zabbix_agentd.d/userparameter_db.backup.conf  
+```
+UserParameter=db.backup[\*],/bin/find /home/data/$1-bak -type f -ctime -$2 | wc -l
+```
+### Apache homepage redirect
+ # vi /var/www/html/index.html  
+```
+<html>
+<head><title>Zabbix</title></head>
+<body>
+<script>window.location.href = './zabbix';</script>
+</body>
+</html>
+```
+### Custom Template
+- [Windows EventLog Login Audit](/files/TemplateWindowsEventLog.xml)  
+- [Linux Login Audit](/files/TemplateLinuxLoginAudit.xml)  
+- [Symantec Network Protection](/files/TemplateWindowsSymantecLog.xml)

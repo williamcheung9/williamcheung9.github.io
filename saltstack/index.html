@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Saltstack - ITOps Notes</title>
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/docco.min.css">
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap-3.0.3.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
+
+                <!-- Collapsed navigation -->
+                <div class="navbar-header">
+                    <!-- Expander button -->
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="..">ITOps Notes</a>
+                </div>
+
+                <!-- Expanded navigation -->
+                <div class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li >
+                                <a href="..">Home</a>
+                            </li>
+                            <li >
+                                <a href="../centos6/">CentOS6</a>
+                            </li>
+                            <li >
+                                <a href="../centos7/">CentOS7</a>
+                            </li>
+                            <li >
+                                <a href="../ubuntu/">Ubuntu18</a>
+                            </li>
+                            <li >
+                                <a href="../windows/">Windows</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="main active"><a href="#saltstack-official-documentation">Saltstack official documentation</a></li>
+        <li class="main "><a href="#install-saltstack">Install saltstack</a></li>
+        <li class="main "><a href="#using-salt">Using salt</a></li>
+        <li class="main "><a href="#custom-state-modules">Custom state modules</a></li>
+            <li><a href="#-install-oracle-jdk">- Install oracle jdk</a></li>
+            <li><a href="#-install-tomcat">- Install tomcat</a></li>
+            <li><a href="#-install-gcc">- Install GCC</a></li>
+            <li><a href="#-install-nodejs">- Install node.js</a></li>
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<h3 id="saltstack-official-documentation">Saltstack official documentation</h3>
+<p><a href="https://docs.saltstack.com/en/latest/contents.html">Table of contents</a><br />
+<a href="https://docs.saltstack.com/en/latest/ref/modules/all/salt.modules.win_wua.html#salt.modules.win_wua.available">Windows update module</a><br />
+<a href="https://docs.saltstack.com/en/latest/ref/states/all/index.html">State modules</a></p>
+<h3 id="install-saltstack">Install saltstack</h3>
+<p><strong>Install saltstack master</strong><br />
+ # yum install https://repo.saltstack.com/yum/redhat/salt-repo-latest.el7.noarch.rpm -y<br />
+ # yum install salt-master<br />
+ # systemctl start salt-master<br />
+ # systemctl enable salt-master<br />
+ # firewall-cmd --zone=public --add-port=4505-4506/tcp --permanent<br />
+ # firewall-cmd --reload<br />
+ # vi /etc/salt/master</p>
+<pre><code>interface: 192.168.152.110
+</code></pre>
+
+<p># systemctl restart salt-master<br />
+<strong>Install saltstack minion on windows</strong><br />
+ # .\Salt-Minion-2019.2.0-Py2-AMD64-Setup.exe /S /master=192.168.152.110 /minion-name=<br />
+<strong>Note</strong>:If the system is missing the appropriate version of the Visual C++ Redistributable (vcredist) the user will be prompted to install it.<br />
+<strong>Install saltstack minion on centos</strong><br />
+ # yum install https://repo.saltstack.com/yum/redhat/salt-repo-latest.el7.noarch.rpm -y<br />
+ # yum install salt-minion -y</p>
+<h3 id="using-salt">Using salt</h3>
+<p><strong>List all keys of minions</strong><br />
+ # salt-key -L<br />
+<strong>Accept a minion</strong><br />
+ # salt-key -a minion-name<br />
+<strong>Delete a minion</strong><br />
+ # salt-key -d minion-name<br />
+<strong>Test minion connection</strong><br />
+ # salt "minion-name" test.ping<br />
+<strong>List connected minions</strong><br />
+ # salt-run manage.status<br />
+ # salt-run manage.versions<br />
+ # salt-run manage.up<br />
+ # salt-run manage.down
+<strong>Job manage</strong><br />
+ # salt "minion-name" saltutil.running<br />
+ # salt "minion-name" saltutil.kill_job jid<br />
+<strong>Update windows minion</strong><br />
+ # salt "minion-name" win_wua.get KB4499164 install=true<br />
+ # salt "minion-name" win_wua.list categories=['Security Updates'] severities=['Critical'] install=True<br />
+<strong>Reboot windows minion</strong><br />
+ # salt "minion-name" system.reboot 5 True<br />
+<strong>Shutdown windows minion</strong><br />
+ # salt "minion-name" system.shutdown timeout=0<br />
+<strong>Enable/Disable windows remote desktop</strong><br />
+ # salt "minion-name" cmd.run 'reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 0 /f'<br />
+ # salt "minion-name" cmd.run 'reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d 1 /f'<br />
+<strong>Manage windows users</strong><br />
+ # salt "minion-name" user.list_users<br />
+ # salt "minion-name" user.setpassword user password<br />
+<strong>Configure windows dns</strong><br />
+ # salt "minion-name" win_dns_client.get_dns_config 'Local area connetion'<br />
+ # salt "minion-name" win_dns_client.add_dns 202.96.209.5 'Local area connetion' 1</p>
+<h3 id="custom-state-modules">Custom state modules</h3>
+<h4 id="-install-oracle-jdk">- Install oracle jdk</h4>
+<p># vi /src/salt/modules/jdk/install.sls<br />
+ # salt "minion-name" state.sls modules.jdk.install</p>
+<pre><code>{% set jdk_version = &quot;jdk1.8.0_201&quot; %}
+jdk-install:
+  file.managed:
+    - name: /usr/local/src/{{ jdk_version }}-linux-x64.tar.gz
+    - source: salt://modules/packages/{{ jdk_version }}-linux-x64.tar.gz
+    - user: root
+    - group: root
+    - mode: 755
+  cmd.run:
+    - name: cd /usr/local/src &amp;&amp; tar zxf {{ jdk_version }}-linux-x64.tar.gz &amp;&amp; mv {{ jdk_version }} /usr/local/ &amp;&amp; ln -s /usr/local/{{ jdk_version }} /usr/local/jdk
+    - unless: test -d /usr/local/{{ jdk_version }} &amp;&amp; test -L /usr/local/jdk
+    - require:
+      - file: jdk-install
+jdk-env:
+  file.append:
+    - name: /etc/profile
+    - text:
+      - export JAVA_HOME=/usr/local/jdk
+      - export CLASSPATH=.:$JAVA_HOME/jre/lib/rt.jar:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
+      - export PATH=$PATH:$JAVA_HOME/bin
+    - unless: test -n &quot;$JAVA_HOME&quot;
+  cmd.run:
+    - name: source /etc/profile
+    - require:
+      - file: jdk-env
+</code></pre>
+
+<h4 id="-install-tomcat">- Install tomcat</h4>
+<p># vi /src/salt/modules/tomcat/install.sls<br />
+ # salt "minion-name" state.sls modules.tomcat.install</p>
+<pre><code>{% set tomcat_version = &quot;7.0.94&quot; %}
+tomcat-install:
+  file.managed:
+    - name: /usr/local/src/apache-tomcat-{{ tomcat_version }}.tar.gz
+    - source: salt://modules/packages/apache-tomcat-{{ tomcat_version }}.tar.gz
+    - user: root
+    - group: root
+    - mode: 755
+  cmd.run:
+    - name: cd /usr/local/src &amp;&amp; tar zxf apache-tomcat-{{ tomcat_version }}.tar.gz &amp;&amp; mv apache-tomcat-{{ tomcat_version }} /usr/local/ &amp;&amp; ln -s /usr/local/apache-tomcat-{{ tomcat_version }} /usr/local/tomcat
+    - unless: test -d /usr/local/apache-tomcat-{{ tomcat_version }} &amp;&amp; test -L /usr/local/tomcat
+    - require:
+      - file: tomcat-install
+</code></pre>
+
+<h4 id="-install-gcc">- Install GCC</h4>
+<p># vi /src/salt/modules/pkg/make.sls<br />
+ # salt "minion-name" state.sls modules.pkg.make</p>
+<pre><code>pkg-init:
+  pkg.installed:
+    - names:
+      - gcc
+      - gcc-c++
+      - openssl-devel
+</code></pre>
+
+<h4 id="-install-nodejs">- Install node.js</h4>
+<p># vi /src/salt/modules/node/install.sls<br />
+ # salt "minion-name" state.sls modules.node.install</p>
+<pre><code>{% set node_version = &quot;v0.12.4&quot; %}
+include:
+  - modules.pkg.make
+node-install:
+  file.managed: 
+    - name: /usr/local/src/node-{{ node_version }}.tar.gz
+    - source: salt://modules/packages/node-{{ node_version }}.tar.gz
+    - user: root
+    - group: root
+    - mode: 755
+  cmd.run:
+    - name: cd /usr/local/src &amp;&amp; tar zxf node-{{ node_version }}.tar.gz &amp;&amp; cd node-{{ node_version }} &amp;&amp; ./configure --prefix=/usr/local/node &amp;&amp; make &amp;&amp; make install
+    - unless: test -d /usr/local/node
+    - require:
+      - pkg: pkg-init
+      - file: node-install
+node-env:
+  file.append:
+    - name: /etc/profile
+    - text:
+      - export NODE_HOME=/usr/local/node
+      - export PATH=$NODE_HOME/bin:$PATH
+      - export NODE_PATH=$NODE_HOME/lib/node_modules:$PATH
+    - unless: test -n &quot;$NODE_HOME&quot;
+  cmd.run:
+    - name: source /etc/profile
+    - require:
+      - file: node-env
+install-express:
+  cmd.run:
+    - name: /usr/local/node/bin/npm install -g express-generator &amp;&amp; /usr/local/node/bin/npm install -g express
+    - unless: test -L /usr/local/node/bin/express
+    - require:
+      - cmd: node-install
+      - cmd: node-env
+</code></pre></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js" defer></script>
+        <script src="../search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form role="form">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="Keyboard Shortcuts Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Keyboard Shortcuts</h4>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

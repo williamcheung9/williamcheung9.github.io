@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>CentOS7 - ITOps Notes</title>
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/docco.min.css">
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap-3.0.3.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
+
+                <!-- Collapsed navigation -->
+                <div class="navbar-header">
+                    <!-- Expander button -->
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="..">ITOps Notes</a>
+                </div>
+
+                <!-- Expanded navigation -->
+                <div class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li >
+                                <a href="..">Home</a>
+                            </li>
+                            <li >
+                                <a href="../centos6/">CentOS6</a>
+                            </li>
+                            <li class="active">
+                                <a href="./">CentOS7</a>
+                            </li>
+                            <li >
+                                <a href="../ubuntu/">Ubuntu18</a>
+                            </li>
+                            <li >
+                                <a href="../windows/">Windows</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li >
+                                <a rel="next" href="../centos6/">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li >
+                                <a rel="prev" href="../ubuntu/">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="main active"><a href="#install-vm-tools-on-centos-7-minimal">Install vm-tools on CentOS 7 minimal</a></li>
+        <li class="main "><a href="#configure-system-proxy">Configure system proxy</a></li>
+        <li class="main "><a href="#set-yum-repository-to-aliyun-mirror">Set yum repository to aliyun mirror</a></li>
+        <li class="main "><a href="#disable-selinux">Disable selinux</a></li>
+        <li class="main "><a href="#bash-command-auto-completion">Bash command auto completion</a></li>
+        <li class="main "><a href="#synchronizing-time-with-ntp-server">Synchronizing time with NTP server</a></li>
+        <li class="main "><a href="#examples-of-selinux-command">Examples of selinux command</a></li>
+        <li class="main "><a href="#change-default-ssh-port">Change default SSH port</a></li>
+        <li class="main "><a href="#change-apache-server-port">Change apache server port</a></li>
+        <li class="main "><a href="#examples-of-firewall-cmd-command">Examples of firewall-cmd command</a></li>
+        <li class="main "><a href="#network-command">Network Command</a></li>
+        <li class="main "><a href="#install-cockpit">Install cockpit</a></li>
+        <li class="main "><a href="#install-webmin">Install webmin</a></li>
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<h3 id="install-vm-tools-on-centos-7-minimal">Install vm-tools on CentOS 7 minimal</h3>
+<p># yum -y install perl net-tools <br />
+  # mount /dev/cdrom /mnt/<br />
+  # cp /mnt/VMwareTools....tar.gz /tmp<br />
+  # cd /tmp<br />
+  # tar -zxvf VMwareTools....tar.gz<br />
+  # cd vmware-tools-distrib<br />
+  # ./vmware-install.pl<br />
+  # systemctl status vmware-tools<br />
+  # /usr/bin/vmware-config-tools.pl<br />
+<strong>Note</strong>:Don't pass in the -defaults argument, select no when you are prompted "Do you want to enable Guest Authentication (vgauth)? </p>
+<h3 id="configure-system-proxy">Configure system proxy</h3>
+<p># vi /etc/profile</p>
+<pre><code>http_proxy=http://username:password@yourproxy:8080/
+ftp_proxy=http://username:password@yourproxy:8080/
+no_proxy=&quot;127.0.0.1,192.168.1.1&quot;
+export http_proxy
+export ftp_proxy
+export no_proxy
+</code></pre>
+
+<p># source /etc/profile</p>
+<h3 id="set-yum-repository-to-aliyun-mirror">Set yum repository to aliyun mirror</h3>
+<p><a href="https://opsx.alibaba.com/mirror">- Aliyun OPSX mirros</a><br />
+<strong>CentOS 7</strong><br />
+# curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo<br />
+<strong>EPEL 7</strong><br />
+# wget -O /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo</p>
+<h3 id="disable-selinux">Disable selinux</h3>
+<p># vi /etc/selinux/config</p>
+<pre><code>SELINUX=disabled
+</code></pre>
+
+<p># systemctl reboot</p>
+<h3 id="bash-command-auto-completion">Bash command auto completion</h3>
+<p># yum install bash-completion -y</p>
+<h3 id="synchronizing-time-with-ntp-server">Synchronizing time with NTP server</h3>
+<p># vi /etc/chrony.conf</p>
+<pre><code>server 172.17.105.109 iburst
+</code></pre>
+
+<p># systemctl restart chronyd</p>
+<h3 id="examples-of-selinux-command">Examples of selinux command</h3>
+<p><strong>Showing selinux context</strong><br />
+# ls -Z file<br />
+<strong>Change selinux context</strong><br />
+# chcon -t var_log_t catalina.out<br />
+<strong>Restore selinux context</strong><br />
+# restorecon -v catalina.out  </p>
+<h3 id="change-default-ssh-port">Change default SSH port</h3>
+<p># vi /etc/ssh/sshd_config</p>
+<pre><code>Port 22
+</code></pre>
+
+<p><strong>Note</strong>:If you want to change the port on a SELinux system,you have to tell SELinux about this change.<br />
+# semanage port -a -t ssh_port_t -p tcp #PORTNUMBER</p>
+<h3 id="change-apache-server-port">Change apache server port</h3>
+<p># vi /etc/httpd/conf/httpd.conf</p>
+<pre><code>Listen 80
+</code></pre>
+
+<p><strong>Note</strong>:If you want to change the port on a SELinux system,you have to tell SELinux about this change.<br />
+<em>Find out default port with selinux supporting</em><br />
+# semanage port -l | grep -w http_port_t<br />
+http_port_t    tcp   12345, 80, 443, 488, 8008, 8009, 8443<br />
+<em>Add a new port</em><br />
+# semanage port -a -t http_port_t -p tcp #PORTNUMBER</p>
+<h3 id="examples-of-firewall-cmd-command">Examples of firewall-cmd command</h3>
+<p># firewall-cmd --zone=public --add-port=8080-8081/tcp --permanent<br />
+# firewall-cmd --zone=publice --add-rich-rule='rule family="ipv4" source address="172.25.0.10" accept'<br />
+# firewall-cmd --zone=public --add-service=ftp --permanent<br />
+# firewall-cmd --zone=public --add-rich-rule='rule family="ipv4" source address="172.17.105.0/24" service name="ssh" accept' --permanent<br />
+# firewall-cmd --zone=public --add-rich-rule='rule family="ipv4" source address="172.17.105.0/24" port port="80" protocol="tcp" accept' --permanent<br />
+# firewall-cmd --zone=public --add-rich-rule='rule family="ipv4" destination address="172.17.107.68" service name="ftp" accept' --permanent  </p>
+<p># firewall-cmd --list-all<br />
+# firewall-cmd --zone=internal --list-all<br />
+# firewall-cmd --zone=external --list-all<br />
+# firewall-cmd --zone=dmz --list-all<br />
+# firewall-cmd --zone-work --list-all  </p>
+<p># firewall-cmd --zone=work --add-interface=ens37 --permanent<br />
+# firewall-cmd --zone=work --remove-service=ssh --permanent</p>
+<h3 id="network-command">Network Command</h3>
+<p># ip addr<br />
+# ss -nat<br />
+# nmtui  </p>
+<p><strong>Some examples of command <em>nmcli</em> usage</strong><br />
+# nmcli con show<br />
+# nmcli dev show ens33<br />
+# nmcli con mod ens33 ipv4.dns "202.96.209.5 202.96.209.133"<br />
+# nmcli con up ens33</p>
+<p><strong>Commands about route configuration</strong><br />
+# ip neighbour<br />
+# ip route show | column -t
+# ip route add 10.15.150.0/24 via 192.168.150.253 dev enp0s3<br />
+# ip route del 10.15.150.0/24<br />
+# echo "10.15.150.0/24 via 192.168.150.253 dev enp0s3" &gt; /etc/sysconfig/network-scripts/route-enp0s3<br />
+# echo "10.25.250.0/24 via 192.168.150.253 dev enp0s3" &gt;&gt; /etc/sysconfig/network-scripts/route-enp0s3<br />
+# remove route 169.254.0.0/16  </p>
+<p>If you want to use CentOS 6 network command,please install <em>net-tools</em> package.<br />
+# yum install net-tools -y</p>
+<h3 id="install-cockpit">Install cockpit</h3>
+<p># yum -y install cockpit<br />
+# firewall-cmd --zone=public --add-service=cockpit --permanent<br />
+# systemctl enable cockpit.socket<br />
+https://172.17.105.81:9090</p>
+<h3 id="install-webmin">Install webmin</h3>
+<pre><code>echo &quot;[Webmin]
+name=Webmin Distribution Neutral
+baseurl=http://download.webmin.com/download/yum
+enabled=1
+gpgcheck=1
+gpgkey=http://www.webmin.com/jcameron-key.asc&quot; &gt;/etc/yum.repos.d/webmin.repo
+</code></pre>
+
+<p># yum install webmin -y<br />
+ # firewall-cmd --zone=public --add-port=10000/tcp --permanent<br />
+ https://172.17.105.81:10000</p></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js" defer></script>
+        <script src="../search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form role="form">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="Keyboard Shortcuts Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Keyboard Shortcuts</h4>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

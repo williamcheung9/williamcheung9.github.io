@@ -1,0 +1,106 @@
+### Configure ip address
+**Note**:The configuration syntax is yaml format  
+ # sudo vi /etc/netplan/01-netcfg.yaml  
+```
+network:
+  ethernets:
+        ens33:
+                addresses: [172.17.105.88/16]
+                gateway4: 172.17.1.250
+                nameservers:
+                        addresses: [202.96.209.5]
+  version: 2
+```
+ # sudo netplan apply  
+Configure static route
+```
+network:
+    ethernets:
+        eno1:
+            dhcp4: false
+            addresses: [192.168.1.81/24]
+            routes:
+                   - to: 0.0.0.0/0
+                     via: 192.168.1.1
+                     metric: 30
+            optional: true
+        eno2:
+            addresses: []
+            dhcp4: true
+            optional: true
+        eno3:
+            addresses: []
+            dhcp4: true
+            optional: true
+        eno4:
+            dhcp4: false
+            addresses: [10.202.186.115/27]
+            routes:
+                    - to: 10.0.0.0/8
+                      via: 10.202.186.126
+                      metric: 20
+            optional: true
+    version: 2
+```
+### Configure apt source list
+ # sudo vi /etc/apt/sources.list
+```
+deb http://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse
+deb http://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe  multiverse
+deb http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse
+deb http://mirrors.aliyun.com/ubuntu/ bionic-proposed main restricted universe multiverse
+deb http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ bionic main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ bionic-security main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ bionic-updates main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ bionic-proposed main restricted universe multiverse
+deb-src http://mirrors.aliyun.com/ubuntu/ bionic-backports main restricted universe multiverse
+```
+### Configure proxy for apt
+ # sudo vi /etc/apt/apt.conf.d/proxy.conf
+```
+Acquire::http::Proxy "http://172.16.2.198:80/";
+Acquire::https::Proxy "http://172.16.2.198:80/";
+```
+### Usage of apt command
+**Install package**  
+ # sudo apt-get install samba  
+**Search package**  
+ # sudo apt-cache search samba  
+**Show details**  
+ # sudo apt-cache show samba  
+**Sychronize packeage list**  
+ # sudo apt update  
+**Update all packages**  
+ # sudo apt upgrade  
+**Delete package**  
+ # sudo apt-get autoremove chrony  
+**Clear cache**  
+ # sudo apt-get clean  
+###Install security updates manually
+ # sudo unattended-upgrades
+###Samba Server Configuration
+**Install samba package**  
+ # sudo apt-get install samba  
+**Create samba user and share directory**  
+ # sudo useradd -M -s /sbin/nologin username  
+ # sudo smbpasswd -a username  
+ # mkdir /home/<username>/sambashare  
+**Modify samba configuration**  
+ # sudo nano /etc/samba/smb.conf
+```
+[global]
+interfaces = 127.0.0.1, 192.168.0.31/24
+bind interfaces only = yes
+
+hosts allow = 127.0.0.1, 192.168.0.31, 192.168.0.32
+hosts deny = 0.0.0.0/0
+
+[sambashare]
+    comment = Samba on Ubuntu
+    path = /home/username/sambashare
+    read only = no
+    browsable = yes
+```
+**Restart samba service**  
+ # sudo service smbd restart

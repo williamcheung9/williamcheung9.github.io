@@ -1,0 +1,229 @@
+### Cobbler Reference Docs
+[Rehat Documentation about Cobbler](https://access.redhat.com/documentation/en-us/red_hat_network_satellite/5.3/html/reference_guide/ch-cobbler)  
+[Centos kickstart introduction](files/centos-kickstart-introduction.txt)
+### Install Cobbler on Centos 7
+**Disable Firewall**  
+ # systemctl stop firewalld  
+ # systemctl disable firewalld  
+**Disable SELinux**  
+ # vi /etc/selinux/config
+```
+SELINUX=disabled
+```
+**Install EPEL repository**  
+ # rpm -ivh https://mirrors.aliyun.com/centos/7.6.1810/extras/x86_64/Packages/epel-release-7-11.noarch.rpm  
+**Install cobbler**  
+ # yum install httpd tftp dhcp cobbler cobbler-web pykickstart xinetd -y  
+ # yum install debmirror.noarch -y  
+**Start service**  
+ # systemctl start httpd  
+ # systemctl enable httpd   
+ # systemctl start cobblerd  
+ # systemctl enable cobblerd  
+**Run cobbler check**  
+ # cobbler check  
+ # vi /etc/cobbler/settings
+```
+server: 192.168.152.101
+next_server: 192.168.152.101
+```
+ # vim /etc/xinetd.d/tftp
+```
+disable=no
+```
+ # vim /etc/cobbler/settings
+```
+proxy_url_ext: http://172.16.2.199:80
+```
+ # systemctl restart cobblerd  
+ # cobbler get-loaders --force  
+**Start rsync service**  
+ # systemctl start rsyncd  
+**Modify default password**  
+ # openssl passwd -1 -salt 'cobbler' 'cobbler'  
+ # vim /etc/cobbler/settings
+```
+default_password_crypted
+```
+**Configure DHCP template**  
+ # vim /etc/cobbler/settings
+```
+ manage_dhcp: 1
+```
+ # vim /etc/cobbler/dhcp.template  
+**Rum cobbler sync**  
+ # systemctl start xinetd  
+ # systemctl restart cobblerd  
+ # cobbler sync
+### Configure os image
+**Import OS image file**  
+ # mount /dev/cdrom /mnt  
+ # cobbler import --path=/mnt/ --name=CentOS-6.10-x86_64 --arch=x86_64  
+**Custom kickstrat file**  
+ # vi /var/lib/cobbler/kickstarts/centos7-x86_64.ks  
+ # cobbler profile edit --name=CentOS-7-x86_64 --kickstart=/var/lib/cobbler/kickstarts/centos7-x86_64.ks  
+ # cobbler sync  
+**View cobbler profile**  
+ # cobbler profile list  
+ # cobbler profile report --name=CentOS-6.10-x86_64
+### Examples of kickstart files
+**Centos 7 on legacy bios**
+```
+# This kickstart file should only be used for installing CentOS 7.
+
+#platform=x86, AMD64, or Intel EM64T
+# System authorization information
+auth  --useshadow  --enablemd5
+# System bootloader configuration
+bootloader --location=mbr
+# Partition clearing information
+clearpart --all --initlabel
+# Use text mode install
+text
+# Firewall configuration
+firewall --enabled
+# Run the Setup Agent on first boot
+firstboot --disable
+# System keyboard
+keyboard us
+# System language
+lang zh_CN.UTF-8 
+# Use network installation
+url --url=$tree
+# Network information
+$SNIPPET('network_config')
+# Reboot after installation
+reboot
+
+#Root password
+rootpw --iscrypted $default_password_crypted
+# SELinux configuration
+selinux --enforcing
+# Do not configure the X Window System
+skipx
+# System timezone
+timezone  Asia/Shanghai
+# Install OS instead of upgrade
+install
+# Clear the Master Boot Record
+zerombr
+# Allow anaconda to partition the system as needed
+part /boot --fstype=ext4 --ondisk=sda --size=500
+part swap  --ondisk=sda --size=16384
+part / --fstype=ext4 --ondisk=sda --grow --size=5000
+
+%pre
+$SNIPPET('log_ks_pre')
+$SNIPPET('kickstart_start')
+$SNIPPET('pre_install_network_config')
+# Enable installation monitoring
+$SNIPPET('pre_anamon')
+%end
+
+%packages
+$SNIPPET('func_install_if_enabled')
+%end
+
+%addon com_redhat_kdump --disable --reserve-mb='auto'
+%end
+
+%post --nochroot
+$SNIPPET('log_ks_post_nochroot')
+%end
+
+%post
+$SNIPPET('log_ks_post')
+
+----------
+
+$SNIPPET('post_install_kernel_options')
+$SNIPPET('post_install_network_config')
+$SNIPPET('func_register_if_enabled')
+$SNIPPET('download_config_files')
+$SNIPPET('koan_environment')
+$SNIPPET('redhat_register')
+$SNIPPET('cobbler_register')
+# Enable post-install boot notification
+$SNIPPET('post_anamon')
+# Start final steps
+$SNIPPET('kickstart_done')
+# End final steps
+%end
+
+```
+**Centos 7 on uefi bios**
+```
+# This kickstart file should only be used for installing CentOS 7.
+
+#platform=x86, AMD64, or Intel EM64T
+auth --enableshadow --passalgo=sha512
+url --url=$tree
+text
+firstboot --disable
+firewall --enabled
+ignoredisk --only-use=sda
+selinux --enforcing
+reboot
+keyboard us
+lang zh_CN.UTF-8
+network  --bootproto=dhcp --hostname=Centos7 --device=ens33  --activate
+rootpw --iscrypted $default_password_crypted
+timezone Asia/Shanghai
+bootloader --append=" crashkernel=auto" --location=mbr --boot-drive=sda
+clearpart --none --initlabel
+
+part /boot/efi --fstype="efi" --ondisk=sda --size=1024
+part swap --fstype="swap" --size=16384
+part / --fstype="xfs" --grow --size=102400
+
+%pre
+parted -s /dev/sda mklabel gpt
+%end
+
+%addon com_redhat_kdump --disable --reserve-mb='auto'
+%end
+
+%packages
+@^minimal
+@core
+kexec-tools
+%end
+```
+### Cobbler Web
+https://192.168.152.101/cobbbler_web  
+username: cobbler password: cobbler  
+**Note**:Cobbler web can't work on python django editon newer than 1.8  
+**Install Django 1.8.17**  
+ # rpm -e --nodeps python2-django  
+ # yum install python2-pip  
+ # pip install --upgrade pip  
+ # pip install Django==1.8.17  
+### Boot file configuration
+**UEFI BIOS boot file**  
+ # cat /etc/cobbler/pxe/efidefault.template
+```
+default=0
+timeout=30
+title local
+	quit
+$grub_menu_items
+```
+**Legacy BIOS boot file**  
+ # cat /etc/cobbler/pxe/pxedefault.template
+```
+DEFAULT menu
+PROMPT 0
+MENU TITLE Cobbler | http://cobbler.github.io/
+TIMEOUT 200
+TOTALTIMEOUT 6000
+ONTIMEOUT $pxe_timeout_profile
+
+LABEL local
+        MENU LABEL (local)
+        MENU DEFAULT
+        LOCALBOOT -1
+
+$pxe_menu_items
+
+MENU end
+```

@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Shellscripts - ITOps Notes</title>
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/docco.min.css">
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap-3.0.3.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
+
+                <!-- Collapsed navigation -->
+                <div class="navbar-header">
+                    <!-- Expander button -->
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="..">ITOps Notes</a>
+                </div>
+
+                <!-- Expanded navigation -->
+                <div class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li >
+                                <a href="..">Home</a>
+                            </li>
+                            <li >
+                                <a href="../centos6/">CentOS6</a>
+                            </li>
+                            <li >
+                                <a href="../centos7/">CentOS7</a>
+                            </li>
+                            <li >
+                                <a href="../ubuntu/">Ubuntu18</a>
+                            </li>
+                            <li >
+                                <a href="../windows/">Windows</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="main active"><a href="#copy-sql-server-backup-files">Copy SQL Server backup files</a></li>
+        <li class="main "><a href="#delete-xinmin-newsletter-delivery-temp-files">Delete Xinmin newsletter delivery temp files</a></li>
+        <li class="main "><a href="#delete-wenhui-newsletter-delivery-temp-files">Delete Wenhui newsletter delivery temp files</a></li>
+        <li class="main "><a href="#delete-xinmin-ftp-history-files">Delete Xinmin FTP history files</a></li>
+        <li class="main "><a href="#delete-press-ftp-history-files">Delete Press FTP history files</a></li>
+        <li class="main "><a href="#delete-press-ftp-history-filesxinmin-weekly">Delete Press FTP history files(Xinmin Weekly)</a></li>
+        <li class="main "><a href="#backup-history-press-files">Backup history press files</a></li>
+        <li class="main "><a href="#soap-wsdl-web-service">SOAP wsdl web service</a></li>
+        <li class="main "><a href="#check-newsletters-by-xinhua-news-agency">Check newsletters by xinhua news agency</a></li>
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<h3 id="copy-sql-server-backup-files">Copy SQL Server backup files</h3>
+<pre><code>#!/bin/bash
+PATH=/usr/lib64/qt-3.3/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin
+export PATH
+count=`df -h | grep $2 | wc -l`
+remotedir=/mnt/smb-$2
+localdir=/home/data/$2-bak
+if [ $count -eq 0 ]; then
+    mount -t cifs //&quot;$1&quot; $remotedir -o username=username,password=password,codepage=cp936 &amp;&gt; /dev/null
+        if [ $? -ne 0 ]; then
+               echo &quot;failed to connect $2 sql server&quot; &gt; /home/scripts/logs/$2_`date +%Y%m%d`.log
+               exit 1
+        fi
+fi
+find $remotedir -type f -mmin -250 -exec cp {} $localdir \;
+umount $remotedir
+exit 0
+</code></pre>
+
+<h3 id="delete-xinmin-newsletter-delivery-temp-files">Delete Xinmin newsletter delivery temp files</h3>
+<pre><code>#!/bin/bash
+PATH=/usr/lib64/qt-3.3/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin
+export PATH
+today=`date +%Y%m%d`
+delday=`date -d &quot;40 days ago&quot; +%Y%m%d`
+logdir1=/opt/scripts/logs/xmdelivery/$today.log
+logdir2=/opt/scripts/logs/xmdelivery/&quot;$today&quot;_error.log
+xmdir=/mnt/xmdelivery
+count=`df -h | grep xmdelivery | wc -l`
+if [ $count -eq 0 ]; then
+    mount -t cifs //172.17.107.110/data $xmdir -o username=username,password=password,codepage=cp936 2&gt;&gt; $logdir2
+    if [ $? -ne 0 ]; then
+        echo &quot;无法访问分稿服务器&quot; &gt;&gt; $logdir2
+        exit 1
+    fi
+fi
+dir1=(新华社图片 新华社文字)
+dir2=(entity name name_bak)
+for(( i=0; i&lt;2; i++ ))
+do
+    for(( j=0; j&lt;3; j++ ))
+    do
+        rm -rvf $xmdir/${dir1[i]}/${dir2[j]}/$delday &gt;&gt; $logdir1 2&gt;&gt; $logdir2
+    done
+done
+umount $xmdir
+if [ ! -s $logdir2 ]; then
+    rm -f $logdir2
+fi
+exit 0
+</code></pre>
+
+<h3 id="delete-wenhui-newsletter-delivery-temp-files">Delete Wenhui newsletter delivery temp files</h3>
+<pre><code>#!/bin/bash
+PATH=/usr/lib64/qt-3.3/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin
+export PATH
+today=`date +%Y%m%d`
+logdir1=/opt/scripts/logs/whdelivery/$today.log
+logdir2=/opt/scripts/logs/whdelivery/&quot;$today&quot;_error.log
+whdir=/mnt/whdelivery
+delday=`date -d &quot;37 days ago&quot; +%Y%m%d`
+count=`df -h | grep whdelivery | wc -l`
+if [ $count -eq 0 ]; then
+    mount -t cifs //172.17.107.106/data $whdir -o username=username,password=password,codepage=cp936 2&gt;&gt; $logdir2
+
+    if [ $? -ne 0 ]; then
+        echo &quot;无法访问分稿服务器&quot; &gt;&gt; $logdir2
+        exit 1
+    fi
+
+fi
+dir1=(photo text)
+dir2=(entity name name_bak)
+for(( i=0; i&lt;2; i++ ))
+do
+    for(( j=0; j&lt;3; j++ ))
+    do
+        rm -rvf $whdir/${dir1[i]}/${dir2[j]}/$delday &gt;&gt; $logdir1 2&gt;&gt; $logdir2
+    done
+done
+umount $whdir
+if [ ! -s $logdir2 ]; then
+    rm -f $logdir2
+fi
+exit 0
+</code></pre>
+
+<h3 id="delete-xinmin-ftp-history-files">Delete Xinmin FTP history files</h3>
+<pre><code>#!/bin/bash
+PATH=/usr/lib64/qt-3.3/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin
+export PATH
+abroad_catalog=(shangbao 奥地利奥华总会 布达佩斯周报 加西周末 捷克华商导报 欧华报 葡华报 希腊中希时报 新民美国 新西兰信报 \
+爱华杂志\(日本版\) 澳大利亚华夏周报 华侨新天地\(荷兰\) 加中时报 拉美侨声 欧洲联合周报 泰国星暹日报 西非统一商报 新欧侨报 印尼讯报 \
+北欧时报 华盛顿中文邮报)
+count=`df -h | grep hwb | wc -l`
+today=`date +%Y%m%d`
+logdir1=/opt/scripts/logs/ftp_hwb/$today.log
+logdir2=/opt/scripts/logs/ftp_hwb/&quot;$today&quot;_error.log
+ftpdir=/mnt/ftp_hwb
+if [ $count -eq 0 ]; then
+    curlftpfs -o codepage=GBK ftp://username:password@serverip:port $ftpdir 2&gt;&gt; $logdir2
+    if [ $? -ne 0 ]; then
+        echo &quot;cannot visit ftpserver&quot; &gt;&gt; $logdir2
+        exit 1
+    fi
+fi
+for((i=0;i&lt;22;i++))
+do
+    find $ftpdir/${abroad_catalog[i]} -type d -mtime +249 | xargs rm -rvf &gt;&gt; $logdir1 
+done
+umount $ftpdir
+if [ ! -s $logdir2 ]; then
+    rm -f $logdir2
+fi
+exit 0
+</code></pre>
+
+<h3 id="delete-press-ftp-history-files">Delete Press FTP history files</h3>
+<pre><code>#!/bin/bash
+PATH=/usr/lib64/qt-3.3/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin
+export PATH
+today=`date +%Y%m%d`
+logdir1=/opt/scripts/logs/ftp_gn/$today.log
+logdir2=/opt/scripts/logs/ftp_gn/&quot;$today&quot;_error.log
+ftpdir=/mnt/ftp_gn
+date1=`date -d &quot;85 days ago&quot; +%Y%m%d`
+date2=`date -d &quot;145 days ago&quot; +%Y%m%d`
+count=`df -h | grep gn | wc -l`
+if [ $count -eq 0 ]; then
+curlftpfs -o codepage=GBK ftp://username:password@serverip:port $ftpdir 2&gt;&gt; $logdir2
+
+    if [ $? -ne 0 ]; then
+    echo &quot;无法访问FTP服务器&quot; &gt;&gt; $logdir2
+    exit 1
+    fi
+
+fi
+rm -rvf $ftpdir/慧科讯业/whb/wh$date1 &gt;&gt; $logdir1 2&gt;&gt; $logdir2
+rm -rvf $ftpdir/慧科讯业/xmwb/xm$date1 &gt;&gt; $logdir1 2&gt;&gt; $logdir2
+rm -rvf $ftpdir/xmwb/上海地区版/$date2 &gt;&gt; $logdir1 2&gt;&gt; $logdir2
+rm -rvf $ftpdir/xmwb/外地版/$date2 &gt;&gt; $logdir1 2&gt;&gt; $logdir2
+rm -rvf $ftpdir/whb/wh$date2 &gt;&gt; $logdir1 2&gt;&gt; $logdir2
+rm -rvf $ftpdir/whb/上海地区版/wh$date2 &gt;&gt; $logdir1 2&gt;&gt; $logdir2
+umount $ftpdir
+if [ ! -s $logdir2 ];then
+    rm -f $logdir2
+fi
+exit 0
+</code></pre>
+
+<h3 id="delete-press-ftp-history-filesxinmin-weekly">Delete Press FTP history files(Xinmin Weekly)</h3>
+<pre><code>#!/bin/bash
+PATH=/usr/lib64/qt-3.3/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin
+export PATH
+ftpdir=/mnt/ftp_xmzk
+today=`date +%Y%m%d`
+logdir1=/opt/scripts/logs/ftp_xmzk/$today.log
+logdir2=/opt/scripts/logs/ftp_xmzk/&quot;$today&quot;_error.log
+count=`df -h | grep xmzk | wc -l`
+if [ $count -eq 0 ]; then
+    curlftpfs -o codepage=GBK ftp://username:password@serverip:port $ftpdir 2&gt;&gt; $logdir2
+    if [ $? -ne 0 ]; then
+        echo &quot;cannot visit ftp server&quot; &gt;&gt; $logdir2
+        exit 1
+    fi
+fi
+find $ftpdir/xmzkr -type d -name &quot;*第??期*&quot; -mtime +251 | xargs rm -rvf &gt;&gt; $logdir1
+find $ftpdir/xmzkr/新民周刊往期电子小文件 -type f -mtime +591 -exec rm -rvf {} \;&gt;&gt; $logdir1 2&gt;&gt; $logdir2
+umount $ftpdir
+if [ ! -s $logdir2 ]; then
+    rm -f $logdir2
+fi
+exit 0
+</code></pre>
+
+<h3 id="backup-history-press-files">Backup history press files</h3>
+<pre><code>#!/bin/bash
+copydir=(ARTICLE COMPOSE LIBRARY)
+copyyear=`date -d &quot;11 months ago&quot; +%Y`
+copymonth=`date -d &quot;11 months ago&quot; +%Y%m`*
+case &quot;$1&quot; in
+    &quot;WHB&quot;)
+        copypaper=&quot;wh&quot;
+        server=&quot;172.17.107.88&quot;
+        ;;
+    &quot;XMWB&quot;)
+        copypaper=&quot;xm&quot;
+        server=&quot;172.17.107.91&quot;
+        ;;
+    &quot;WXB&quot;)
+        copypaper=&quot;wx&quot;
+        server=&quot;172.17.107.88&quot;
+        ;;
+     &quot;DSZB&quot;)
+        copypaper=&quot;ds&quot;
+        server=&quot;172.17.107.88&quot;
+        ;;
+      *)
+        echo &quot;Please input WHB/XMWB/WXB/DSZB&quot;
+        exit 1
+        ;;
+
+esac
+function mounts()
+{
+    count=`df -h | grep &quot;$1&quot; | wc -l`
+    if [ $count -eq 0 ]; then
+        mount -t cifs //&quot;$2&quot; /mnt/&quot;$1&quot; -o username=&quot;$3&quot;,password=&quot;$4&quot;,codepage=cp936
+        if [ $? -ne 0 ]; then
+            echo &quot;failed to connet $2&quot; &gt; /home/scripts/logs/$1_`date +%Y%m%d`.log
+            exit 1
+        fi
+    fi
+}
+mounts &quot;$copypaper&quot; &quot;$server/fzpaper&quot; &quot;username&quot; &quot;password&quot;
+mounts &quot;share1&quot; &quot;172.17.107.176/share1&quot; &quot;username&quot; &quot;password&quot;
+if [ ! -d &quot;/mnt/share1/$copypaper$copyyear&quot; ]; then
+    mkdir /mnt/share1/$copypaper$copyyear
+    for((i=0; i&lt;3; i++))
+    do
+        mkdir /mnt/share1/$copypaper$copyyear/${copydir[i]}
+    done
+fi
+for((i=0; i&lt;3; i++))
+do
+    cp -r /mnt/$copypaper/$1/${copydir[i]}/$copymonth /mnt/share1/$copypaper$copyyear/${copydir[i]}
+done
+umount /mnt/$copypaper
+umount /mnt/share1
+exit 0
+</code></pre>
+
+<h3 id="soap-wsdl-web-service">SOAP wsdl web service</h3>
+<pre><code>#!/bin/bash
+cityname=$1
+
+cat &gt; /tmp/request.xml &lt;&lt; EOF
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;soap:Envelope xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xmlns:xsd=&quot;http://www.w3.org/2001/XMLSchema&quot; xmlns:soap=&quot;http://schemas.xmlsoap.org/soap/envelope/&quot;&gt;
+  &lt;soap:Body&gt;
+    &lt;getWeatherbyCityName xmlns=&quot;http://WebXml.com.cn/&quot;&gt;
+      &lt;theCityName&gt;$cityname&lt;/theCityName&gt;
+    &lt;/getWeatherbyCityName&gt;
+  &lt;/soap:Body&gt;
+&lt;/soap:Envelope&gt;
+EOF
+
+curl -s -H &quot;Content-Type: text/xml; charset=utf-8&quot; \
+        -H 'SOAPAction: &quot;http://WebXml.com.cn/getWeatherbyCityName&quot;' \
+        -d  @/tmp/request.xml \
+        -X POST http://www.webxml.com.cn/WebServices/WeatherWebService.asmx \
+        &gt; /tmp/weatherapi.log
+
+exit 0
+</code></pre>
+
+<h3 id="check-newsletters-by-xinhua-news-agency">Check newsletters by xinhua news agency</h3>
+<pre><code>#!/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin
+export PATH
+today=`date +%Y%m%d`
+case &quot;$1&quot; in
+    &quot;107&quot;)
+    server=&quot;172.25.52.107&quot;
+     ;;
+    &quot;106&quot;)
+    server=&quot;172.25.56.106&quot;
+     ;;
+    &quot;xm&quot;)
+    server=&quot;172.17.107.110&quot;
+     ;;
+    &quot;wh&quot;)
+    server=&quot;172.17.107.106&quot;
+     ;;
+    *)
+    echo &quot;-2&quot;
+    exit 1
+     ;;
+esac
+
+local=/mnt/xhs_&quot;$1&quot;
+chkconn=`df -h | grep &quot;$local&quot; | wc -l`
+if [ $chkconn -eq 0 ]; then
+        mount -t cifs //&quot;$server&quot;/data &quot;$local&quot; -o username=username,password=password,codepage=cp936 &amp;&gt; /dev/null
+        if [ $? -ne 0 ]; then
+            echo &quot;-1&quot;
+            exit 1
+        fi
+fi
+
+if [ &quot;$2&quot; == &quot;num_photo&quot; ]; then
+    dir=&quot;$local/cnml/input/photo/$today&quot;
+    if [ -d $dir ]; then
+        count=`ls -l &quot;$local&quot;/cnml/input/photo/&quot;$today&quot; | grep &quot;^-.*[jpg|JPG|cdr|ai]$&quot; | wc -l`
+        echo &quot;$count&quot;
+        umount &quot;$local&quot;
+        exit 0
+    else
+        echo &quot;0&quot;
+        umount &quot;$local&quot;
+        exit 0
+    fi  
+fi
+
+case &quot;$server&quot; in
+    172.25.56.106|172.25.52.107)
+    dir=&quot;$local/cnml/input/$2&quot;
+     ;;
+    172.17.107.110|172.17.107.106)
+    dir=&quot;$local/$2/name_bak&quot;
+     ;;
+    *)
+    echo &quot;-3&quot;
+    exit 1
+     ;;
+esac
+
+if [ -d &quot;$dir&quot;/&quot;$today&quot; ]; then
+    count=`ls -l &quot;$dir&quot;/&quot;$today&quot; | grep &quot;^-.*xml$&quot; | wc -l`
+    echo &quot;$count&quot;
+    umount &quot;$local&quot;
+    exit 0
+else
+    echo &quot;0&quot;
+    umount &quot;$local&quot;
+    exit 0
+fi
+</code></pre></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js" defer></script>
+        <script src="../search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form role="form">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="Keyboard Shortcuts Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Keyboard Shortcuts</h4>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

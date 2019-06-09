@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Zabbix - ITOps Notes</title>
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/docco.min.css">
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap-3.0.3.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
+
+                <!-- Collapsed navigation -->
+                <div class="navbar-header">
+                    <!-- Expander button -->
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="..">ITOps Notes</a>
+                </div>
+
+                <!-- Expanded navigation -->
+                <div class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li >
+                                <a href="..">Home</a>
+                            </li>
+                            <li >
+                                <a href="../centos6/">CentOS6</a>
+                            </li>
+                            <li >
+                                <a href="../centos7/">CentOS7</a>
+                            </li>
+                            <li >
+                                <a href="../ubuntu/">Ubuntu18</a>
+                            </li>
+                            <li >
+                                <a href="../windows/">Windows</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="main active"><a href="#zabbix-40-reference-documentation">Zabbix 4.0 reference documentation</a></li>
+        <li class="main "><a href="#install-zabbix-server-40">Install Zabbix Server 4.0</a></li>
+        <li class="main "><a href="#configure-zabbix-server">Configure Zabbix Server</a></li>
+        <li class="main "><a href="#monitor-vmware-vcenter-server">Monitor VMware vCenter Server</a></li>
+        <li class="main "><a href="#monitor-windows-server">Monitor Windows Server</a></li>
+            <li><a href="#-install-zabbix-agent">- Install Zabbix-agent</a></li>
+            <li><a href="#-eventlog">- Eventlog</a></li>
+            <li><a href="#-performance-monitor">- Performance monitor</a></li>
+            <li><a href="#-count-active-process">- Count active process</a></li>
+        <li class="main "><a href="#monitor-linux-server">Monitor Linux Server</a></li>
+            <li><a href="#-zabbix-agent-active-configuration">- Zabbix Agent active configuration</a></li>
+            <li><a href="#-selinux-deny-zabbix-agent-starting">- Selinux deny Zabbix agent starting</a></li>
+            <li><a href="#-monitor-linux-login">- Monitor Linux Login</a></li>
+            <li><a href="#-examples-of-customized-key">- Examples of customized key</a></li>
+        <li class="main "><a href="#custom-template">Custom Template</a></li>
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<h3 id="zabbix-40-reference-documentation">Zabbix 4.0 reference documentation</h3>
+<ul>
+<li><a href="https://www.zabbix.com/documentation/4.0/start">Official documentation</a>  </li>
+<li><a href="https://www.zabbix.com/download_agents#tab:40LTS">Agent download</a>  </li>
+<li><a href="https://www.zabbix.com/documentation/4.0/manual/vm_monitoring">VMware monitoring</a>  </li>
+<li><a href="https://www.zabbix.com/documentation/4.0/manual/config/items/itemtypes/zabbix_agent/win_keys">Windows specific item keys</a></li>
+<li><a href="https://www.zabbix.com/documentation/4.0/manual/appendix/triggers/functions">Supported trigger functions</a></li>
+<li><a href="https://www.zabbix.com/documentation/4.0/manual/appendix/config/zabbix_agentd">The parameters supported in a Zabbix agent configuration file</a></li>
+<li><a href="https://www.zabbix.com/documentation/4.0/manual/config/notifications/media/script">Custom alertscripts</a></li>
+</ul>
+<h3 id="install-zabbix-server-40">Install Zabbix Server 4.0</h3>
+<p><strong>Disable selinux</strong><br />
+ # vi /etc/selinux/config</p>
+<pre><code>SELINUX=disabled
+</code></pre>
+
+<p><strong>Adding Zabbix repository</strong><br />
+ # rpm -ivh https://repo.zabbix.com/zabbix/4.0/rhel/7/x86_64/zabbix-release-4.0-1.el7.noarch.rpm <br />
+ # yum -y install yum-utils<br />
+ # yum-config-manager --enable rhel-7-server-optional-rpms<br />
+<strong>Use aliyun Zabbix repository</strong> <br />
+ # vi /etc/yum.repos.d/zabbix.repo</p>
+<pre><code>[zabbix]  
+baseurl=http://mirrors.aliyun.com/zabbix/zabbix/4.0/rhel/7/$basearch/
+[zabbix-non-supported]
+baseurl=http://mirrors.aliyun.com/zabbix/non-supported/rhel/7/$basearch/
+</code></pre>
+
+<p><strong>Install Zabbix Server,Mariadb</strong><br />
+ # yum install zabbix-server-mysql -y<br />
+ # yum install zabbix-web-mysql -y<br />
+ # yum install mariadb-server.x86_64 -y<br />
+<strong>Initialize database</strong><br />
+ # systemctl start mariadb<br />
+ # mysql_secure_installation<br />
+ # mysql -u root -p<br />
+ mysql&gt; create database zabbix character set utf8 collate utf8_bin;<br />
+ mysql&gt; grant all privileges on zabbix.<em> to zabbix@localhost identified by 'PASSWORD';<br />
+ mysql&gt; quit;<br />
+ # zcat /usr/share/doc/zabbix-server-mysql</em>/create.sql.gz | mysql -uzabbix -p zabbix<br />
+<strong>Configure database for Zabbix server</strong><br />
+ # vi /etc/zabbix/zabbix_server.conf</p>
+<pre><code>DBHost=localhost
+DBName=zabbix
+DBUser=zabbix  
+DBPassword=&lt;password&gt;
+</code></pre>
+
+<p><strong>Zabbix frontend configuration</strong><br />
+ # vi /etc/httpd/conf.d/zabbix.conf</p>
+<pre><code>php_value date.timezone Asia/Shanghai
+</code></pre>
+
+<p><strong>Install Zabbix Agent</strong><br />
+ # yum install zabbix-agent -y<br />
+<strong>Starting Zabbix server process</strong><br />
+ # systemctl start httpd<br />
+ # systemctl start zabbix-server<br />
+ # systemctl start zabbix-agent<br />
+<strong>Add http/agent port in firewalld</strong><br />
+ # firewall-cmd --zone=public --add-port=80/tcp --permanent<br />
+ # firewall-cmd --zone=public --add-port=10051/tcp --permanent<br />
+ # firewall-cmd --reload</p>
+<h3 id="configure-zabbix-server">Configure Zabbix Server</h3>
+<p><strong>Login</strong><br />
+http://192.168.152.100/zabbix<br />
+username:Admin passowrd:zabbix<br />
+<strong>Use Zabbix-get for getting data from agent</strong><br />
+ # yum install zabbix-get -y<br />
+ # zabbix_get -s 192.168.1.106 -p 10050 -k "system.cpu.load[all]"<br />
+<strong>Raplace default font to support chinese simplified</strong><br />
+ # cp msyh.ttf /usr/share/zabbix/fonts<br />
+ # cd /usr/share/zabbix/include<br />
+ # vim defines.inc.php<br />
+<strong>Apache homepage redirect</strong><br />
+ # vi /var/www/html/index.html  </p>
+<pre><code>&lt;html&gt;
+&lt;head&gt;&lt;title&gt;Zabbix&lt;/title&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;script&gt;window.location.href = './zabbix';&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<h3 id="monitor-vmware-vcenter-server">Monitor VMware vCenter Server</h3>
+<p># vi /etc/zabbix/zabbix_server.conf</p>
+<pre><code>StartVMwareCollectors=5
+VMwareFrequency=180
+VMwarePerfFrequency=180
+VMwareCacheSize=8M
+VMwareTimeout=10
+</code></pre>
+
+<p># systemctl restart zabbix-server<br />
+ Choose Template VM VMware for vCenter Server<br />
+ Set the host macros for VMware authentication<br />
+ {$URL} VMware (vCenter or ESX hypervisor) SDK URL (https://servername/sdk)<br />
+ {$USERNAME} user@vsphere.local<br />
+ {$PASSWORD} </p>
+<h3 id="monitor-windows-server">Monitor Windows Server</h3>
+<h4 id="-install-zabbix-agent">- Install Zabbix-agent</h4>
+<pre><code>SET INSTALLFOLDER=C:\Program Files\Zabbix Agent
+
+msiexec /l*v log.txt /i zabbix_agent-4.0.6-win-amd64-openssl.msi /qn^
+ LOGTYPE=file^
+ LOGFILE=&quot;%INSTALLFOLDER%\zabbix_agentd.log&quot;^
+ ENABLEREMOTECOMMANDS=0^
+ SERVER=172.17.105.117^
+ LISTENPORT=10050^
+ SERVERACTIVE=172.17.105.117^
+ HOSTNAME=&quot;%COMPUTERNAME%&quot;^
+ TLSCONNECT=unencrypted^
+ TLSACCEPT=unencrypted^
+ INSTALLFOLDER=&quot;%INSTALLFOLDER%&quot;
+</code></pre>
+
+<h4 id="-eventlog">- Eventlog</h4>
+<p><strong>Key</strong><br />
+eventlog[name,regexp,severity,source,eventid,maxlines,mode]<br />
+<strong>Introduction</strong><br />
+<strong>name</strong> - name of event log<br />
+<strong>regexp</strong> - regular expressiondescribing the required pattern<br />
+<strong>severity</strong> - regular expressiondescribing severity<br />
+The parameter accepts the following values:<br />
+“Information”, “Warning”, “Error”, “Critical”, “Verbose”<br />
+In older Zabbix versions running on any Windows version it would be“Information”, “Warning”, “Error”, “Failure Audit”, “Success Audit”<br />
+<strong>source</strong> - regular expressiondescribing source identifier<br />
+<strong>eventid</strong> - regular expressiondescribing the event identifier(s)<br />
+<strong>maxlines</strong> - maximum number of new lines per second the agent will send to Zabbix server or proxy. This parameter overrides the value of 'MaxLinesPerSecond' in zabbix_agentd.win.conf<br />
+<strong>mode</strong> - possible values:<br />
+all (default), skip (skip processing of olderdata)<br />
+<strong>Note</strong>:The item must be configured as zabbix active mode<br />
+<strong>Examples</strong><br />
+eventlog[Security,,"Failure Audit",,^(529|680)$]<br />
+eventlog[System,,"Warning|Error"]<br />
+eventlog[Security,,"Failure Audit",,^4625$,,skip]<br />
+eventlog[Application,,"Warning",^Symantec,^400$,,skip]</p>
+<h4 id="-performance-monitor">- Performance monitor</h4>
+<p>perf_counter["\Forefront TMG Web Proxy\Cache Hit Ratio for Last 10K Requests (%)"]</p>
+<h4 id="-count-active-process">- Count active process</h4>
+<p>proc.num[java.exe]</p>
+<h3 id="monitor-linux-server">Monitor Linux Server</h3>
+<h4 id="-zabbix-agent-active-configuration">- Zabbix Agent active configuration</h4>
+<p># sed -i 's/# StartAgents=3/StartAgents=0/' /etc/zabbix/zabbix_agentd.conf<br />
+ # sed -i 's/ServerActive=127.0.0.1/ServerActive=192.168.152.100/' /etc/zabbix/zabbix_agentd.conf<br />
+ # sed -i 's/Hostname=Zabbix server/Hostname='$HOSTNAME'/' /etc/zabbix/zabbix_agentd.conf</p>
+<h4 id="-selinux-deny-zabbix-agent-starting">- Selinux deny Zabbix agent starting</h4>
+<p># yum -y install policycoreutils-python.x86_64<br />
+ # cat /var/log/audit/audit.log | grep zabbix | grep denied | audit2allow -M zabbix-agent<br />
+ # semodule -i zabbix-agent.pp <br />
+ # yum -y install policycoreutils-python.x86_64<br />
+ # semanage permissive -a zabbix_agent_t</p>
+<h4 id="-monitor-linux-login">- Monitor Linux Login</h4>
+<p>Use Zabbix agent active and authorize read privilege of secure log file for zabbix user<br />
+ # setfacl -m u:zabbix:r-- /var/log/secure<br />
+ # sed -i '/kill/a\/usr\/bin\/setfacl -m u:zabbix:r-- \/var\/log\/secure' /etc/logrotate.d/syslog</p>
+<h4 id="-examples-of-customized-key">- Examples of customized key</h4>
+<p><strong>Create customized key "ambient.temp"</strong><br />
+ # vi /etc/zabbix/zabbix_agentd.d/userparameter_ambient.temp.conf</p>
+<pre><code>UserParameter=ambient.temp,sudo /usr/bin/ipmitool sdr entity 12.1 | awk 'NR==1{print $10}'
+</code></pre>
+
+<p><strong>Allocate sudo privilege for zabbix user</strong><br />
+ # visudo</p>
+<pre><code>#Defaults    requiretty
+zabbix  ALL=(ALL)   NOPASSWD: ALL
+</code></pre>
+
+<p><strong>Restart zabbix agent</strong><br />
+ # /etc/init.d/zabbix-agent restart<br />
+<strong>Timeout while executing a shell script</strong><br />
+ # vi /etc/zabbix/zabbix_agentd.conf</p>
+<pre><code>Timeout=10
+</code></pre>
+
+<p><strong>Create customized key "db.backup[*]"</strong><br />
+ # vi /etc/zabbix/zabbix_agentd.d/userparameter_db.backup.conf  </p>
+<pre><code>UserParameter=db.backup[\*],/bin/find /home/data/$1-bak -type f -ctime -$2 | wc -l
+</code></pre>
+
+<h3 id="custom-template">Custom Template</h3>
+<ul>
+<li><a href="/files/TemplateWindowsEventLog.xml">Windows EventLog Login Audit</a>  </li>
+<li><a href="/files/TemplateLinuxLoginAudit.xml">Linux Login Audit</a>  </li>
+<li><a href="/files/TemplateWindowsSymantecLog.xml">Symantec Network Protection</a></li>
+</ul></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js" defer></script>
+        <script src="../search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form role="form">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="Keyboard Shortcuts Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Keyboard Shortcuts</h4>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

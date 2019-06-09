@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Tomcat - ITOps Notes</title>
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/docco.min.css">
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap-3.0.3.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
+
+                <!-- Collapsed navigation -->
+                <div class="navbar-header">
+                    <!-- Expander button -->
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="..">ITOps Notes</a>
+                </div>
+
+                <!-- Expanded navigation -->
+                <div class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li >
+                                <a href="..">Home</a>
+                            </li>
+                            <li >
+                                <a href="../centos6/">CentOS6</a>
+                            </li>
+                            <li >
+                                <a href="../centos7/">CentOS7</a>
+                            </li>
+                            <li >
+                                <a href="../ubuntu/">Ubuntu18</a>
+                            </li>
+                            <li >
+                                <a href="../windows/">Windows</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="main active"><a href="#install-tomcat">Install Tomcat</a></li>
+        <li class="main "><a href="#redirect-tomcat-home-page">Redirect Tomcat home page</a></li>
+        <li class="main "><a href="#replace-default-tomcat-ico">Replace default tomcat ico</a></li>
+        <li class="main "><a href="#configuration-of-serverxml">Configuration of server.xml</a></li>
+        <li class="main "><a href="#logrotate-catalinaout">Logrotate Catalina.out</a></li>
+        <li class="main "><a href="#start-tomcat-on-system-boot">Start tomcat on system boot</a></li>
+        <li class="main "><a href="#tomcat-startup-script">Tomcat startup script</a></li>
+        <li class="main "><a href="#enabling-jmx-remote">Enabling JMX remote</a></li>
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<h3 id="install-tomcat">Install Tomcat</h3>
+<p># cd /usr/local/src<br />
+  # tar -zxvf jdk-8u201-linux-x64.tar.gz<br />
+  # mv jdk1.8.0_201/ ..<br />
+  # tar -zxvf apache-tomcat-7.0.94.tar.gz<br />
+  # mv apache-tomcat-7.0.94 ..<br />
+  # ln -s jdk1.8.0_201 jdk<br />
+  # ln -s apache-tomcat-7.0.94 tomcat<br />
+  # vi /etc/profile</p>
+<pre><code>export JAVA_HOME=/usr/local/jdk
+export CLASSPATH=.:$JAVA_HOME/jre/lib/rt.jar:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
+export PATH=$PATH:$JAVA_HOME/bin
+</code></pre>
+
+<p># source /etc/profile<br />
+  # java -version<br />
+  # /usr/local/tomcat/bin/startup.sh</p>
+<h3 id="redirect-tomcat-home-page">Redirect Tomcat home page</h3>
+<p># vi /usr/local/tomcat/webapps/ROOT/index.jsp</p>
+<pre><code>&lt;%response.sendRedirect(&quot;../newsedit/login.jsp&quot;);%&gt;
+</code></pre>
+
+<h3 id="replace-default-tomcat-ico">Replace default tomcat ico</h3>
+<p>/usr/local/tomcat/webapps/ROOT/favicon.ico</p>
+<h3 id="configuration-of-serverxml">Configuration of server.xml</h3>
+<p><strong>connect Microsoft SQL Server</strong><br />
+  # vi /usr/local/tomcat/conf/server.xml</p>
+<pre><code>&lt;Host name=&quot;localhost&quot;  appBase=&quot;webapps&quot;
+            unpackWARs=&quot;true&quot; autoDeploy=&quot;true&quot;
+            xmlValidation=&quot;false&quot; xmlNamespaceAware=&quot;false&quot;&gt;
+
+&lt;Context crossContext=&quot;true&quot; debug=&quot;0&quot; docBase=&quot;/var/new-web&quot; path=&quot;/newsedit&quot; reloadable=&quot;false&quot;&gt;
+    &lt;Resource name=&quot;jdbc/E5NEW&quot; type=&quot;javax.sql.DataSource&quot;
+        driverClassName=&quot;com.microsoft.sqlserver.jdbc.SQLServerDriver&quot;
+        url=&quot;jdbc:sqlserver://172.17.107.125:1433;databasename=newseditv2&quot;
+        username=&quot;username&quot;
+        password=&quot;password&quot;
+
+        maxIdle=&quot;20&quot;
+        maxActive=&quot;25&quot;
+        maxWait=&quot;10000&quot;
+    /&gt;
+
+    &lt;Resource name=&quot;jdbc/ADV&quot; type=&quot;javax.sql.DataSource&quot;
+        driverClassName=&quot;com.microsoft.sqlserver.jdbc.SQLServerDriver&quot;
+        url=&quot;jdbc:sqlserver://172.25.24.7:1433;databasename=xmcm&quot;
+        username=&quot;username&quot;
+        password=&quot;password&quot;
+
+        maxIdle=&quot;5&quot;
+        maxActive=&quot;8&quot;
+        maxWait=&quot;10000&quot;
+    /&gt;
+&lt;/Context&gt;
+
+&lt;/Host&gt;
+</code></pre>
+
+<p><strong>disable local host access log</strong><br />
+  # vi /usr/local/tomcat/conf/server.xml<br />
+  comment out  </p>
+<pre><code>&lt;Valve className=&quot;org.apache.catalina.valves.AccessLogValve&quot; directory=&quot;logs&quot;
+       prefix=&quot;localhost_access_log.&quot; suffix=&quot;.txt&quot;
+       pattern=&quot;%h %l %u %t &amp;quot;%r&amp;quot; %s %b&quot; /&gt;
+</code></pre>
+
+<p><strong>support utf-8 uriencoding</strong><br />
+  # vi /usr/local/tomcat/conf/server.xml</p>
+<pre><code>&lt;Connector port=&quot;81&quot; protocol=&quot;HTTP/1.1&quot;
+               connectionTimeout=&quot;20000&quot;
+               redirectPort=&quot;8443&quot; 
+           URIEncoding=&quot;UTF-8&quot; /&gt;
+</code></pre>
+
+<h3 id="logrotate-catalinaout">Logrotate Catalina.out</h3>
+<p># vi /etc/logrotate.d/tomcat</p>
+<pre><code>/usr/local/tomcat/logs/catalina.out {
+daily
+rotate 15
+missingok
+dateext
+nocompress
+notifempty
+copytruncate
+}
+</code></pre>
+
+<p># logrotate -d /etc/logrotate.d/tomcat<br />
+  # cat /var/lib/logrotate/logrotate.status<br />
+<strong>Note</strong>:Logfiles and directory should have selinux context "var_log_t"<br />
+  # chcon -t var_log_t /usr/local/tomcat/logs<br />
+  # chcon -t var_log_t /usr/local/tomcat/logs/catalina.out</p>
+<h3 id="start-tomcat-on-system-boot">Start tomcat on system boot</h3>
+<p># vi /etc/rc.d/rc.local</p>
+<pre><code>export JAVA_HOME=/usr/local/jdk
+/usr/local/tomcat/bin/startup.sh
+</code></pre>
+
+<p>Add rc.local execute permission<br />
+ # chmod 744 /etc/rc.d/rc.local</p>
+<h3 id="tomcat-startup-script">Tomcat startup script</h3>
+<p># vi /etc/rc.d/init.d/tomcat</p>
+<pre><code>#!/bin/bash
+#
+# /etc/rc.d/init.d/tomcat
+# init script for tomcat precesses
+#
+# processname: tomcat
+# description: tomcat is a j2se server
+# chkconfig: 2345 86 16
+# description: Start up the Tomcat servlet engine.
+export JAVA_HOME=/usr/local/jdk
+export CATALINA_HOME=/usr/local/tomcat
+export CATALINA_BASE=/usr/local/tomcat
+export CATALINA_TMPDIR=/usr/local/tomcat/temp
+
+if [ -f /etc/init.d/functions ]; then
+    . /etc/init.d/functions
+elif [ -f /etc/rc.d/init.d/functions ]; then
+    . /etc/rc.d/init.d/functions
+else
+    echo -e &quot;\atomcat: unable to locate functions lib. Cannot continue.&quot;
+    exit -1
+fi
+
+RETVAL=$?
+CATALINA_HOME=&quot;/usr/local/tomcat&quot;
+
+case &quot;$1&quot; in
+    start)
+    if [ -f $CATALINA_HOME/bin/startup.sh ]; then
+        echo $&quot;Starting Tomcat&quot;
+        $CATALINA_HOME/bin/startup.sh
+    fi
+    ;;
+    stop)
+    if [ -f $CATALINA_HOME/bin/shutdown.sh ]; then
+        echo $&quot;Stopping Tomcat&quot;
+        $CATALINA_HOME/bin/shutdown.sh
+    fi
+    ;;
+    *)
+        echo $&quot;Usage: $0 {start|stop}&quot;
+        exit 1
+    ;;
+esac
+
+exit $RETVAL
+</code></pre>
+
+<p># chmod +x /etc/rc.d/init.d/tomcat<br />
+ # chkconfig --add /etc/rc.d/init.d/tomcat</p>
+<h3 id="enabling-jmx-remote">Enabling JMX remote</h3>
+<p># vi /usr/local/tomcat/bin/catalina.sh</p>
+<pre><code># Enabling JMX Remote
+CATALINA_OPTS=&quot;$CATALINA_OPTS
+-Dcom.sun.management.jmxremote
+-Dcom.sun.management.jmxremote.authenticate=false
+-Dcom.sun.management.jmxremote.ssl=false
+-Djava.rmi.server.hostname=192.168.152.111
+-Dcom.sun.management.jmxremote.port=9102&quot;*
+</code></pre>
+
+<p><strong>Note</strong>:Disable tomcat server firewall,use jdk/bin/jconsole.exe to test connection</p></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js" defer></script>
+        <script src="../search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form role="form">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="Keyboard Shortcuts Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Keyboard Shortcuts</h4>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
