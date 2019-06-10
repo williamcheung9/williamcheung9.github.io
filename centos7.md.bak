@@ -1,3 +1,6 @@
+### Reference documentation
+[Aliyun OPSX mirros](https://opsx.alibaba.com/mirror)  
+[Configuring Kernel Parameters](https://codingbee.net/rhce/kernel-kernel-parameters-aka-system-settings)
 ### Install vm-tools on CentOS 7 minimal
   # yum -y install perl net-tools   
   # mount /dev/cdrom /mnt/  
@@ -21,7 +24,6 @@ export no_proxy
 ```
 \# source /etc/profile
 ### Set yum repository to aliyun mirror
-[- Aliyun OPSX mirros](https://opsx.alibaba.com/mirror)  
 **CentOS 7**  
 \# curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo  
 **EPEL 7**  
@@ -34,6 +36,13 @@ SELINUX=disabled
 \# systemctl reboot
 ### Bash command auto completion
 \# yum install bash-completion -y
+### Disable ipv6
+ # vi /etc/sysctl.d/01-ipv6.disable.conf
+```
+net.ipv6.conf.all.disable_ipv6 = 1
+net.ipv6.conf.default.disable_ipv6 = 1
+```
+ # sysctl --system
 ### Synchronizing time with NTP server
 \# vi /etc/chrony.conf
 ```
@@ -65,7 +74,7 @@ Listen 80
 http_port_t    tcp   12345, 80, 443, 488, 8008, 8009, 8443  
 *Add a new port*  
 \# semanage port -a -t http_port_t -p tcp #PORTNUMBER
-### Examples of firewall-cmd command
+### Examples of command firewall-cmd
 \# firewall-cmd --zone=public --add-port=8080-8081/tcp --permanent  
 \# firewall-cmd --zone=publice --add-rich-rule='rule family="ipv4" source address="172.25.0.10" accept'  
 \# firewall-cmd --zone=public --add-service=ftp --permanent  
@@ -82,31 +91,33 @@ http_port_t    tcp   12345, 80, 443, 488, 8008, 8009, 8443
 \# firewall-cmd --zone=work --add-interface=ens37 --permanent  
 \# firewall-cmd --zone=work --remove-service=ssh --permanent
 ### Network Command
-\# ip addr  
-\# ss -nat  
+\# ip addr   
 \# nmtui  
 
-**Some examples of command *nmcli* usage**  
+**Examples of command nmcli**  
 \# nmcli con show  
 \# nmcli dev show ens33  
 \# nmcli con mod ens33 ipv4.dns "202.96.209.5 202.96.209.133"  
-\# nmcli con up ens33
- 
+\# nmcli con up ens33  
 **Commands about route configuration**  
 \# ip neighbour  
-\# ip route show | column -t
+\# ip route show | column -t  
 \# ip route add 10.15.150.0/24 via 192.168.150.253 dev enp0s3  
 \# ip route del 10.15.150.0/24  
 \# echo "10.15.150.0/24 via 192.168.150.253 dev enp0s3" > /etc/sysconfig/network-scripts/route-enp0s3  
 \# echo "10.25.250.0/24 via 192.168.150.253 dev enp0s3" >> /etc/sysconfig/network-scripts/route-enp0s3  
 \# remove route 169.254.0.0/16  
-
 If you want to use CentOS 6 network command,please install *net-tools* package.  
-\# yum install net-tools -y
+\# yum install net-tools -y  
+**Examples of command ss**  
+ # ss -nat  
+ # ss -natp | column -t  
+ # ss -not | column -t
 ### Install cockpit
 \# yum -y install cockpit  
 \# firewall-cmd --zone=public --add-service=cockpit --permanent  
-\# systemctl enable cockpit.socket
+\# systemctl enable cockpit.socket  
+https://172.17.105.81:9090
 ### Install webmin
 ```
 echo "[Webmin]
@@ -115,5 +126,8 @@ baseurl=http://download.webmin.com/download/yum
 enabled=1
 gpgcheck=1
 gpgkey=http://www.webmin.com/jcameron-key.asc" >/etc/yum.repos.d/webmin.repo
-yum install webmin -y
 ```
+ # yum install webmin -y  
+ # firewall-cmd --zone=public --add-port=10000/tcp --permanent  
+ https://172.17.105.81:10000
+

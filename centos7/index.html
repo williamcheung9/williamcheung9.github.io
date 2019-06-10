@@ -87,16 +87,18 @@
         <div class="container">
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
-        <li class="main active"><a href="#install-vm-tools-on-centos-7-minimal">Install vm-tools on CentOS 7 minimal</a></li>
+        <li class="main active"><a href="#reference-documentation">Reference documentation</a></li>
+        <li class="main "><a href="#install-vm-tools-on-centos-7-minimal">Install vm-tools on CentOS 7 minimal</a></li>
         <li class="main "><a href="#configure-system-proxy">Configure system proxy</a></li>
         <li class="main "><a href="#set-yum-repository-to-aliyun-mirror">Set yum repository to aliyun mirror</a></li>
         <li class="main "><a href="#disable-selinux">Disable selinux</a></li>
         <li class="main "><a href="#bash-command-auto-completion">Bash command auto completion</a></li>
+        <li class="main "><a href="#disable-ipv6">Disable ipv6</a></li>
         <li class="main "><a href="#synchronizing-time-with-ntp-server">Synchronizing time with NTP server</a></li>
         <li class="main "><a href="#examples-of-selinux-command">Examples of selinux command</a></li>
         <li class="main "><a href="#change-default-ssh-port">Change default SSH port</a></li>
         <li class="main "><a href="#change-apache-server-port">Change apache server port</a></li>
-        <li class="main "><a href="#examples-of-firewall-cmd-command">Examples of firewall-cmd command</a></li>
+        <li class="main "><a href="#examples-of-command-firewall-cmd">Examples of command firewall-cmd</a></li>
         <li class="main "><a href="#network-command">Network Command</a></li>
         <li class="main "><a href="#install-cockpit">Install cockpit</a></li>
         <li class="main "><a href="#install-webmin">Install webmin</a></li>
@@ -104,6 +106,9 @@
 </div></div>
                 <div class="col-md-9" role="main">
 
+<h3 id="reference-documentation">Reference documentation</h3>
+<p><a href="https://opsx.alibaba.com/mirror">Aliyun OPSX mirros</a><br />
+<a href="https://codingbee.net/rhce/kernel-kernel-parameters-aka-system-settings">Configuring Kernel Parameters</a></p>
 <h3 id="install-vm-tools-on-centos-7-minimal">Install vm-tools on CentOS 7 minimal</h3>
 <p># yum -y install perl net-tools <br />
   # mount /dev/cdrom /mnt/<br />
@@ -127,8 +132,7 @@ export no_proxy
 
 <p># source /etc/profile</p>
 <h3 id="set-yum-repository-to-aliyun-mirror">Set yum repository to aliyun mirror</h3>
-<p><a href="https://opsx.alibaba.com/mirror">- Aliyun OPSX mirros</a><br />
-<strong>CentOS 7</strong><br />
+<p><strong>CentOS 7</strong><br />
 # curl -o /etc/yum.repos.d/CentOS-Base.repo http://mirrors.aliyun.com/repo/Centos-7.repo<br />
 <strong>EPEL 7</strong><br />
 # wget -O /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo</p>
@@ -140,6 +144,13 @@ export no_proxy
 <p># systemctl reboot</p>
 <h3 id="bash-command-auto-completion">Bash command auto completion</h3>
 <p># yum install bash-completion -y</p>
+<h3 id="disable-ipv6">Disable ipv6</h3>
+<p># vi /etc/sysctl.d/01-ipv6.disable.conf</p>
+<pre><code>net.ipv6.conf.all.disable_ipv6 = 1
+net.ipv6.conf.default.disable_ipv6 = 1
+</code></pre>
+
+<p># sysctl --system</p>
 <h3 id="synchronizing-time-with-ntp-server">Synchronizing time with NTP server</h3>
 <p># vi /etc/chrony.conf</p>
 <pre><code>server 172.17.105.109 iburst
@@ -171,7 +182,7 @@ export no_proxy
 http_port_t    tcp   12345, 80, 443, 488, 8008, 8009, 8443<br />
 <em>Add a new port</em><br />
 # semanage port -a -t http_port_t -p tcp #PORTNUMBER</p>
-<h3 id="examples-of-firewall-cmd-command">Examples of firewall-cmd command</h3>
+<h3 id="examples-of-command-firewall-cmd">Examples of command firewall-cmd</h3>
 <p># firewall-cmd --zone=public --add-port=8080-8081/tcp --permanent<br />
 # firewall-cmd --zone=publice --add-rich-rule='rule family="ipv4" source address="172.25.0.10" accept'<br />
 # firewall-cmd --zone=public --add-service=ftp --permanent<br />
@@ -186,24 +197,27 @@ http_port_t    tcp   12345, 80, 443, 488, 8008, 8009, 8443<br />
 <p># firewall-cmd --zone=work --add-interface=ens37 --permanent<br />
 # firewall-cmd --zone=work --remove-service=ssh --permanent</p>
 <h3 id="network-command">Network Command</h3>
-<p># ip addr<br />
-# ss -nat<br />
-# nmtui  </p>
-<p><strong>Some examples of command <em>nmcli</em> usage</strong><br />
+<p># ip addr <br />
+# nmtui<br />
+<strong>Examples of command nmcli</strong><br />
 # nmcli con show<br />
 # nmcli dev show ens33<br />
 # nmcli con mod ens33 ipv4.dns "202.96.209.5 202.96.209.133"<br />
-# nmcli con up ens33</p>
-<p><strong>Commands about route configuration</strong><br />
+# nmcli con up ens33<br />
+<strong>Commands about route configuration</strong><br />
 # ip neighbour<br />
-# ip route show | column -t
+# ip route show | column -t<br />
 # ip route add 10.15.150.0/24 via 192.168.150.253 dev enp0s3<br />
 # ip route del 10.15.150.0/24<br />
 # echo "10.15.150.0/24 via 192.168.150.253 dev enp0s3" &gt; /etc/sysconfig/network-scripts/route-enp0s3<br />
 # echo "10.25.250.0/24 via 192.168.150.253 dev enp0s3" &gt;&gt; /etc/sysconfig/network-scripts/route-enp0s3<br />
-# remove route 169.254.0.0/16  </p>
-<p>If you want to use CentOS 6 network command,please install <em>net-tools</em> package.<br />
-# yum install net-tools -y</p>
+# remove route 169.254.0.0/16<br />
+If you want to use CentOS 6 network command,please install <em>net-tools</em> package.<br />
+# yum install net-tools -y<br />
+<strong>Examples of command ss</strong><br />
+ # ss -nat<br />
+ # ss -natp | column -t<br />
+ # ss -not | column -t</p>
 <h3 id="install-cockpit">Install cockpit</h3>
 <p># yum -y install cockpit<br />
 # firewall-cmd --zone=public --add-service=cockpit --permanent<br />

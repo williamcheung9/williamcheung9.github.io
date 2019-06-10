@@ -1,0 +1,12 @@
+### Git command usage
+**Configure**  
+ # git config --global user.name "John Doe"  
+ # git config --global user.email johndoe@example.com  
+ # git config -l  
+**Initializing a new repository**  
+ # git init  
+**Check current status**  
+ # git status  
+**Committing changes**  
+ # git add -A  
+ # git commit -m "description"

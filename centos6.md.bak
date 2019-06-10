@@ -1,30 +1,31 @@
 ### Install vm-tools on CentOS 6 minimal
-  # yum -y install perl fuse-libs   
-  # mount /dev/cdrom /mnt/  
-  # cp /mnt/VMwareTools....tar.gz /tmp  
-  # cd /tmp  
-  # tar -zxvf VMwareTools....tar.gz  
-  # cd vmware-tools-distrib  
-  # ./vmware-install.pl  
-  Start vmtools service manually  
+<font size=3>
+ # yum -y install perl fuse-libs   
+ # mount /dev/cdrom /mnt/  
+ # cp /mnt/VMwareTools....tar.gz /tmp  
+ # cd /tmp  
+ # tar -zxvf VMwareTools....tar.gz  
+ # cd vmware-tools-distrib  
+ # ./vmware-install.pl  
+Start vmtools service manually  
   # /etc/vmware-tools/services.sh start
 ### Examples of iptables configuration
   # cat /etc/sysconfig/iptables  
-- **ip range**
+**ip range**
 ```
 -A INPUT -m iprange --src-range 172.17.0.0-172.25.255.255 -p tcp --dport 139 -j ACCEPT
 -A INPUT -m iprange --src-range 172.17.0.0-172.25.255.255 -p tcp --dport 445 -j ACCEPT
 ```
-
-- **ip source**
+**ip source**
 ```
 -A INPUT -i eth0 -s 192.168.100.0/24 -p tcp --dport 3128 -m state --state NEW,ESTABLISHED -j ACCEPT
 ```
-- **multi port**  
+**multi port**  
 ```
 -A INPUT -p tcp -m multiport --dports 22,53,80 -j ACCEPT
+-A INPUT -s 172.17.0.0/16 -p tcp -m multiport --dport 2415:2430 -j ACCEPT
 ```
-- **recent module**  
+**recent module**  
 ```
 -A INPUT -p tcp --dport 22 -i eth0 -m state --state NEW -m recent --set
 -A INPUT -p tcp --dport 22 -i eth0 -m state --state NEW -m recent --update --seconds 60 --hitcount 4 -j DROP
@@ -108,3 +109,4 @@ server ntp1.aliyun.com iburst
   # ipmitool sdr entity 12.1  
   # ipmitool lan print  
   # ipmitool user list 1  
+</font>

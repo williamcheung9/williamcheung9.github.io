@@ -8,7 +8,7 @@
         
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>CentOS6 - ITOps Notes</title>
+        <title>Github - ITOps Notes</title>
         <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../css/font-awesome.min.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
@@ -49,8 +49,8 @@
                             <li >
                                 <a href="..">Home</a>
                             </li>
-                            <li class="active">
-                                <a href="./">CentOS6</a>
+                            <li >
+                                <a href="../centos6/">CentOS6</a>
                             </li>
                             <li >
                                 <a href="../centos7/">CentOS7</a>
@@ -69,16 +69,6 @@
                                 <i class="fa fa-search"></i> Search
                             </a>
                         </li>
-                            <li >
-                                <a rel="next" href="..">
-                                    <i class="fa fa-arrow-left"></i> Previous
-                                </a>
-                            </li>
-                            <li >
-                                <a rel="prev" href="../centos7/">
-                                    Next <i class="fa fa-arrow-right"></i>
-                                </a>
-                            </li>
                     </ul>
                 </div>
             </div>
@@ -87,125 +77,26 @@
         <div class="container">
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
-        <li class="main active"><a href="#install-vm-tools-on-centos-6-minimal">Install vm-tools on CentOS 6 minimal</a></li>
-        <li class="main "><a href="#examples-of-iptables-configuration">Examples of iptables configuration</a></li>
-        <li class="main "><a href="#nfs-server-configuration">NFS Server configuration</a></li>
-        <li class="main "><a href="#ntp-server-configuration">NTP Server Configuration</a></li>
-        <li class="main "><a href="#ipmi-tool">IPMI Tool</a></li>
+        <li class="main active"><a href="#git-command-usage">Git command usage</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
 
-<h3 id="install-vm-tools-on-centos-6-minimal">Install vm-tools on CentOS 6 minimal</h3>
-<p># yum -y install perl fuse-libs <br />
- # mount /dev/cdrom /mnt/<br />
- # cp /mnt/VMwareTools....tar.gz /tmp<br />
- # cd /tmp<br />
- # tar -zxvf VMwareTools....tar.gz<br />
- # cd vmware-tools-distrib<br />
- # ./vmware-install.pl<br />
-Start vmtools service manually<br />
-  # /etc/vmware-tools/services.sh start</p>
-<h3 id="examples-of-iptables-configuration">Examples of iptables configuration</h3>
-<p># cat /etc/sysconfig/iptables<br />
-<strong>ip range</strong></p>
-<pre><code>-A INPUT -m iprange --src-range 172.17.0.0-172.25.255.255 -p tcp --dport 139 -j ACCEPT
--A INPUT -m iprange --src-range 172.17.0.0-172.25.255.255 -p tcp --dport 445 -j ACCEPT
-</code></pre>
-
-<p><strong>ip source</strong></p>
-<pre><code>-A INPUT -i eth0 -s 192.168.100.0/24 -p tcp --dport 3128 -m state --state NEW,ESTABLISHED -j ACCEPT
-</code></pre>
-
-<p><strong>multi port</strong>  </p>
-<pre><code>-A INPUT -p tcp -m multiport --dports 22,53,80 -j ACCEPT
--A INPUT -s 172.17.0.0/16 -p tcp -m multiport --dport 2415:2430 -j ACCEPT
-</code></pre>
-
-<p><strong>recent module</strong>  </p>
-<pre><code>-A INPUT -p tcp --dport 22 -i eth0 -m state --state NEW -m recent --set
--A INPUT -p tcp --dport 22 -i eth0 -m state --state NEW -m recent --update --seconds 60 --hitcount 4 -j DROP
--A INPUT -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
-</code></pre>
-
-<h3 id="nfs-server-configuration">NFS Server configuration</h3>
-<p><strong>Install NFS Server from Packages</strong><br />
- # yum nfs-utils -y<br />
-<strong>Configure NFS user's access</strong><br />
- # vi /etc/exports  </p>
-<pre><code>/home/library 172.17.105.0/24(rw,all_squash,anonuid=500,anongid=500,sync)
-</code></pre>
-
-<p># useradd vsphere -M -s /sbin/nologin<br />
- # passwd vsphere<br />
- # mkdir /home/library<br />
- # chown vsphere:vsphere /home/library<br />
-<strong>Configure NFS server port</strong><br />
- # vi /etc/sysconfig/nfs  </p>
-<pre><code>RQUOTAD_PORT=1001
-LOCKD_TCPPORT=30001
-LOCKD_UDPPORT=30001
-MOUNTD_PORT=1002
-</code></pre>
-
-<p><strong>Show NFS service port listening</strong><br />
- # rpcinfo -p<br />
-<strong>Add NFS server port to iptables</strong><br />
- # vi /etc/sysconfig/iptables</p>
-<pre><code>-A INPUT -s 172.17.105.0/24 -p tcp -m multiport --dport 111,875,892,32769,32803 -j ACCEPT
--A INPUT -s 172.17.105.0/24 -p udp -m multiport --dport 111,875,892,32769,32803 -j ACCEPT
-</code></pre>
-
-<p><strong>Start services</strong><br />
- # /etc/init.d/rpcbind start<br />
- # /etc/init.d/nfs start<br />
- # chkconfig --level 3 rpcbind on<br />
- # chkconfig --level 3 nfs on<br />
-<strong>NFS Client</strong><br />
-CentOS<br />
- # yum install showmount -y<br />
-Ubuntu<br />
- # sudo apt-get install nfs-common<br />
-<strong>Mount NFS</strong><br />
- # mount -t nfs 172.17.105.127:/home/library  /mnt</p>
-<h3 id="ntp-server-configuration">NTP Server Configuration</h3>
-<p><strong>Modify configuration file</strong><br />
- # cat /etc/ntp.conf  </p>
-<pre><code>restrict 172.17.0.0 mask 255.255.0.0 nomodify
-restrict 172.25.0.0 mask 255.255.0.0 nomodify
-server ntp1.aliyun.com iburst
-</code></pre>
-
-<p><strong>Add port to iptables</strong><br />
- # cat /etc/sysconfig/iptables  </p>
-<pre><code>-A INPUT -p udp --dport 123 -j ACCEPT
-</code></pre>
-
-<p><strong>Start service</strong><br />
- # /etc/init.d/ntpd restart<br />
- # /etc/init.d/iptables restart<br />
- # chkconfig --level 3 ntpd on<br />
-<strong>Query NTP Server current state</strong><br />
- # ntpq -p</p>
-<h3 id="ipmi-tool">IPMI Tool</h3>
-<p><strong>Check BMC Controllor</strong><br />
-  # dmidecode -t 38<br />
-<strong>Check IPMI tool whether intalled or not</strong><br />
-  # rpm -qa | grep -i ipmi<br />
-<strong>Install IPMI tool</strong><br />
-  # yum install ipmitool -y<br />
-<strong>Load kernel module</strong><br />
-  # modprobe ipmi_watchdog<br />
-  # modprobe ipmi_poweroff<br />
-  # modprobe ipmi_devintf<br />
-  # modprobe ipmi_si<br />
-  # modprobe ipmi_msghandler<br />
-<strong>Examples ipmitool command</strong><br />
-  # ipmitool -I open sdr<br />
-  # ipmitool sensor get "CPU 1 TEMP"<br />
-  # ipmitool sdr entity 12.1<br />
-  # ipmitool lan print<br />
-  # ipmitool user list 1  </p></div>
+<h3 id="git-command-usage">Git command usage</h3>
+<p><strong>Configure</strong><br />
+ # git config --global user.name "John Doe"<br />
+ # git config --global user.email johndoe@example.com<br />
+ # git config -l<br />
+<strong>Initializing a new repository</strong><br />
+ # git init<br />
+<strong>Check current status</strong><br />
+ # git status<br />
+<strong>Committing changes</strong><br />
+ # git add -A<br />
+ # git commit -m "description"<br />
+<strong>Push an existing repository</strong><br />
+ # git remote add origin https://github.com/username/projectname.git<br />
+ # git push -u origin master</p></div>
         </div>
 
         <footer class="col-md-12">

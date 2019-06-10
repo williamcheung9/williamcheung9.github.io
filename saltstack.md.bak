@@ -115,7 +115,7 @@ pkg-init:
       - openssl-devel
 ```
 ####- Install node.js
- # vi /src/salt/modules/node/install.sls
+ # vi /src/salt/modules/node/install.sls  
  # salt "minion-name" state.sls modules.node.install
 ```
 {% set node_version = "v0.12.4" %}

@@ -1,11 +1,11 @@
 ### Zabbix 4.0 reference documentation
-- [Official documentation](https://www.zabbix.com/documentation/4.0/start)  
-- [Agent download](https://www.zabbix.com/download_agents#tab:40LTS)  
-- [VMware monitoring](https://www.zabbix.com/documentation/4.0/manual/vm_monitoring)  
-- [Windows specific item keys](https://www.zabbix.com/documentation/4.0/manual/config/items/itemtypes/zabbix_agent/win_keys)
-- [Supported trigger functions](https://www.zabbix.com/documentation/4.0/manual/appendix/triggers/functions)
-- [The parameters supported in a Zabbix agent configuration file](https://www.zabbix.com/documentation/4.0/manual/appendix/config/zabbix_agentd)
-- [Custom alertscripts](https://www.zabbix.com/documentation/4.0/manual/config/notifications/media/script)
+[Official documentation](https://www.zabbix.com/documentation/4.0/start)  
+[Agent download](https://www.zabbix.com/download_agents#tab:40LTS)  
+[VMware monitoring](https://www.zabbix.com/documentation/4.0/manual/vm_monitoring)  
+[Windows specific item keys](https://www.zabbix.com/documentation/4.0/manual/config/items/itemtypes/zabbix_agent/win_keys)
+[Supported trigger functions](https://www.zabbix.com/documentation/4.0/manual/appendix/triggers/functions)
+[The parameters supported in a Zabbix agent configuration file](https://www.zabbix.com/documentation/4.0/manual/appendix/config/zabbix_agentd)
+[Custom alertscripts](https://www.zabbix.com/documentation/4.0/manual/config/notifications/media/script)
 ### Install Zabbix Server 4.0
 **Disable selinux**  
  # vi /etc/selinux/config
@@ -69,7 +69,17 @@ username:Admin passowrd:zabbix
 **Raplace default font to support chinese simplified**  
  # cp msyh.ttf /usr/share/zabbix/fonts  
  # cd /usr/share/zabbix/include  
- # vim defines.inc.php
+ # vim defines.inc.php  
+**Apache homepage redirect**  
+ # vi /var/www/html/index.html  
+```
+<html>
+<head><title>Zabbix</title></head>
+<body>
+<script>window.location.href = './zabbix';</script>
+</body>
+</html>
+```
 ### Monitor VMware vCenter Server
  # vi /etc/zabbix/zabbix_server.conf
 ```
@@ -165,16 +175,6 @@ Timeout=10
  # vi /etc/zabbix/zabbix_agentd.d/userparameter_db.backup.conf  
 ```
 UserParameter=db.backup[\*],/bin/find /home/data/$1-bak -type f -ctime -$2 | wc -l
-```
-### Apache homepage redirect
- # vi /var/www/html/index.html  
-```
-<html>
-<head><title>Zabbix</title></head>
-<body>
-<script>window.location.href = './zabbix';</script>
-</body>
-</html>
 ```
 ### Custom Template
 - [Windows EventLog Login Audit](/files/TemplateWindowsEventLog.xml)  
