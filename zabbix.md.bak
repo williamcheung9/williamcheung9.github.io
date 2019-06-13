@@ -137,6 +137,12 @@ eventlog[Application,,"Warning",^Symantec,^400$,,skip]
 perf_counter["\Forefront TMG Web Proxy\Cache Hit Ratio for Last 10K Requests (%)"]
 #### - Count active process
 proc.num[java.exe]
+#### - Count number of files
+Create text file in C:\Program Files\Zabbix Agent\zabbix_agentd.conf.d\userparameter_files.number
+```
+UserParameter=files.number.wh,dir e:\data\wh /s /w /b /a-d | find /v /c ""
+UserParameter=files.number.xm,dir e:\data\xm /s /w /b /a-d | find /v /c ""
+```
 ### Monitor Linux Server
 #### - Zabbix Agent active configuration
  # sed -i 's/# StartAgents=3/StartAgents=0/' /etc/zabbix/zabbix_agentd.conf  
@@ -176,12 +182,6 @@ Timeout=10
  # vi /etc/zabbix/zabbix_agentd.d/userparameter_db.backup.conf  
 ```
 UserParameter=db.backup[\*],/bin/find /home/data/$1-bak -type f -ctime -$2 | wc -l
-```
-**Customized key "files.number"  
-Create text file in C:\Program Files\Zabbix Agent\zabbix_agentd.conf.d\userparameter_files.number
-```
-UserParameter=files.number.wh,dir e:\data\wh /s /w /b /a-d | find /v /c ""
-UserParameter=files.number.xm,dir e:\data\xm /s /w /b /a-d | find /v /c ""
 ```
 ### Custom Template
 - [Windows EventLog Login Audit](/files/TemplateWindowsEventLog.xml)  

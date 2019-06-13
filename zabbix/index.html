@@ -86,6 +86,7 @@
             <li><a href="#-eventlog">- Eventlog</a></li>
             <li><a href="#-performance-monitor">- Performance monitor</a></li>
             <li><a href="#-count-active-process">- Count active process</a></li>
+            <li><a href="#-count-number-of-files">- Count number of files</a></li>
         <li class="main "><a href="#monitor-linux-server">Monitor Linux Server</a></li>
             <li><a href="#-zabbix-agent-active-configuration">- Zabbix Agent active configuration</a></li>
             <li><a href="#-selinux-deny-zabbix-agent-starting">- Selinux deny Zabbix agent starting</a></li>
@@ -235,6 +236,12 @@ eventlog[Application,,"Warning",^Symantec,^400$,,skip]</p>
 <p>perf_counter["\Forefront TMG Web Proxy\Cache Hit Ratio for Last 10K Requests (%)"]</p>
 <h4 id="-count-active-process">- Count active process</h4>
 <p>proc.num[java.exe]</p>
+<h4 id="-count-number-of-files">- Count number of files</h4>
+<p>Create text file in C:\Program Files\Zabbix Agent\zabbix_agentd.conf.d\userparameter_files.number.conf</p>
+<pre><code>UserParameter=files.number.wh,dir e:\data\wh /s /w /b /a-d | find /v /c &quot;&quot;
+UserParameter=files.number.xm,dir e:\data\xm /s /w /b /a-d | find /v /c &quot;&quot;
+</code></pre>
+
 <h3 id="monitor-linux-server">Monitor Linux Server</h3>
 <h4 id="-zabbix-agent-active-configuration">- Zabbix Agent active configuration</h4>
 <p># sed -i 's/# StartAgents=3/StartAgents=0/' /etc/zabbix/zabbix_agentd.conf<br />
@@ -273,12 +280,6 @@ If zabbix server have a problem mentioned timeout while executing a shell script
 <p><strong>Customized key "db.backup[*]"</strong><br />
  # vi /etc/zabbix/zabbix_agentd.d/userparameter_db.backup.conf  </p>
 <pre><code>UserParameter=db.backup[\*],/bin/find /home/data/$1-bak -type f -ctime -$2 | wc -l
-</code></pre>
-
-<p><strong>Customized key "files.number"</strong><br />
-Create text file in C:\Program Files\Zabbix Agent\zabbix_agentd.conf.d\userparameter_files.number</p>
-<pre><code>UserParameter=files.number.wh,dir e:\data\wh /s /w /b /a-d | find /v /c &quot;&quot;
-UserParameter=files.number.xm,dir e:\data\xm /s /w /b /a-d | find /v /c &quot;&quot;
 </code></pre>
 
 <h3 id="custom-template">Custom Template</h3>
