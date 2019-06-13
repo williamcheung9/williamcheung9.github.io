@@ -249,29 +249,36 @@ eventlog[Application,,"Warning",^Symantec,^400$,,skip]</p>
 <h4 id="-monitor-linux-login">- Monitor Linux Login</h4>
 <p>Use Zabbix agent active and authorize read privilege of secure log file for zabbix user<br />
  # setfacl -m u:zabbix:r-- /var/log/secure<br />
- # sed -i '/kill/a\/usr\/bin\/setfacl -m u:zabbix:r-- \/var\/log\/secure' /etc/logrotate.d/syslog</p>
+ # sed -i '/kill/a\/usr\/bin\/setfacl -m u:zabbix:r-- \/var\/log\/secure' /etc/logrotate.d/syslog<br />
+Create new item key "log[/var/log/secure,"(Accepted|Failed) password",,,skip,]"</p>
 <h4 id="-examples-of-customized-key">- Examples of customized key</h4>
-<p><strong>Create customized key "ambient.temp"</strong><br />
+<p><strong>Customized key "ambient.temp"</strong><br />
  # vi /etc/zabbix/zabbix_agentd.d/userparameter_ambient.temp.conf</p>
 <pre><code>UserParameter=ambient.temp,sudo /usr/bin/ipmitool sdr entity 12.1 | awk 'NR==1{print $10}'
 </code></pre>
 
-<p><strong>Allocate sudo privilege for zabbix user</strong><br />
+<p>Allocate sudo privilege for zabbix user<br />
  # visudo</p>
 <pre><code>#Defaults    requiretty
-zabbix  ALL=(ALL)   NOPASSWD: ALL
+zabbix  ALL=(ALL)   NOPASSWD: /usr/bin/ipmitool
 </code></pre>
 
-<p><strong>Restart zabbix agent</strong><br />
+<p>Restart zabbix agent<br />
  # /etc/init.d/zabbix-agent restart<br />
-<strong>Timeout while executing a shell script</strong><br />
+If zabbix server have a problem mentioned timeout while executing a shell script,the zabbix agent profile should be modified.<br />
  # vi /etc/zabbix/zabbix_agentd.conf</p>
 <pre><code>Timeout=10
 </code></pre>
 
-<p><strong>Create customized key "db.backup[*]"</strong><br />
+<p><strong>Customized key "db.backup[*]"</strong><br />
  # vi /etc/zabbix/zabbix_agentd.d/userparameter_db.backup.conf  </p>
 <pre><code>UserParameter=db.backup[\*],/bin/find /home/data/$1-bak -type f -ctime -$2 | wc -l
+</code></pre>
+
+<p><strong>Customized key "files.number"</strong><br />
+Create text file in C:\Program Files\Zabbix Agent\zabbix_agentd.conf.d\userparameter_files.number</p>
+<pre><code>UserParameter=files.number.wh,dir e:\data\wh /s /w /b /a-d | find /v /c &quot;&quot;
+UserParameter=files.number.xm,dir e:\data\xm /s /w /b /a-d | find /v /c &quot;&quot;
 </code></pre>
 
 <h3 id="custom-template">Custom Template</h3>
