@@ -93,7 +93,6 @@ http_port_t    tcp   12345, 80, 443, 488, 8008, 8009, 8443
 ### Network Command
 \# ip addr   
 \# nmtui  
-
 **Examples of command nmcli**  
 \# nmcli con show  
 \# nmcli dev show ens33  

@@ -138,7 +138,7 @@ perf_counter["\Forefront TMG Web Proxy\Cache Hit Ratio for Last 10K Requests (%)
 #### - Count active process
 proc.num[java.exe]
 #### - Count number of files
-Create text file in C:\Program Files\Zabbix Agent\zabbix_agentd.conf.d\userparameter_files.number
+Create text file in C:\Program Files\Zabbix Agent\zabbix_agentd.conf.d\userparameter_files.number.conf
 ```
 UserParameter=files.number.wh,dir e:\data\wh /s /w /b /a-d | find /v /c ""
 UserParameter=files.number.xm,dir e:\data\xm /s /w /b /a-d | find /v /c ""

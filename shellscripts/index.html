@@ -86,6 +86,7 @@
         <li class="main "><a href="#backup-history-press-files">Backup history press files</a></li>
         <li class="main "><a href="#soap-wsdl-web-service">SOAP wsdl web service</a></li>
         <li class="main "><a href="#check-newsletters-by-xinhua-news-agency">Check newsletters by xinhua news agency</a></li>
+        <li class="main "><a href="#create-folder-by-date">Create folder by date</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
@@ -417,6 +418,26 @@ else
     umount &quot;$local&quot;
     exit 0
 fi
+</code></pre>
+
+<h3 id="create-folder-by-date">Create folder by date</h3>
+<pre><code>#!/bin/bash
+#Create directory by date
+DATE=$(date +%Y%m%d)
+DIR_PRI=&quot;/home/pic/primary/$DATE&quot;
+DIR_SEC=&quot;/home/pic/secondary/$DATE&quot;
+
+create_folder(){
+FOLDER=$1
+if [ ! -d $FOLDER ]; then
+    mkdir $FOLDER
+fi
+}
+
+create_folder $DIR_PRI
+create_folder $DIR_SEC
+
+exit 0
 </code></pre></div>
         </div>
 
