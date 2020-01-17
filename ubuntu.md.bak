@@ -1,3 +1,6 @@
+### Change hostname
+ # sudo nano /etc/hostname  
+ # sudo nano /etc/hosts
 ### Configure ip address
 **Note**:The configuration syntax is yaml format  
  # sudo vi /etc/netplan/01-netcfg.yaml  
@@ -12,7 +15,7 @@ network:
   version: 2
 ```
  # sudo netplan apply  
-Configure static route
+**Configure static route**
 ```
 network:
     ethernets:
@@ -104,3 +107,16 @@ hosts deny = 0.0.0.0/0
 ```
 **Restart samba service**  
  # sudo service smbd restart
+###Install Zabbix Agent
+ # wget https://repo.zabbix.com/zabbix/4.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_4.0-2+bionic_all.deb  
+ # sudo dpkg -i zabbix-release_4.0-2+bionic_all.deb  
+ # sudo apt update  
+ # sudo apt-get install zabbix-agent
+###Disable ipv6
+ # sudo vi /etc/default/grub
+```
+GRUB_CMDLINE_LINUX_DEFAULT="ipv6.disable=1"
+GRUB_CMDLINE_LINUX="ipv6.disable=1"
+```
+ # sudo update-grub  
+ # sudo reboot
