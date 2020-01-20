@@ -141,9 +141,32 @@ WITH REPLACE
 <p>4.Restart sql server service<br />
 <strong>Note</strong>:If the master database restored on another server,the sql server installation directory cannot be changed.</p>
 <h3 id="clear-the-transation-log">Clear the transation log</h3>
+<p><strong>SQL SERVER 2000</strong></p>
 <pre><code>backup LOG xmgga with NO_LOG
 GO
 dbcc shrinkdatabase (xmgga ,10)
+GO
+</code></pre>
+
+<p><strong>SQL SERVER 2008</strong></p>
+<pre><code>-- BACKUP log newseditv2 with no_log
+
+USE newseditv2; 
+GO
+
+-- Truncate the log by changing the database recovery model to SIMPLE
+
+ALTER DATABASE newseditv2 SET RECOVERY SIMPLE;
+GO
+
+-- Shrink the trun cated log file to 1 MB.
+
+DBCC SHRINKFILE (newseditv2_Log, 1); 
+GO
+
+-- Reset the database recovery model
+
+ALTER DATABASE newseditv2 SET RECOVERY FULL; 
 GO
 </code></pre></div>
         </div>
