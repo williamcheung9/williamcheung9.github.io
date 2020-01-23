@@ -89,6 +89,7 @@
     <ul class="nav bs-sidenav">
         <li class="main active"><a href="#windows-avma-key">Windows AVMA Key</a></li>
         <li class="main "><a href="#command-xcopy">Command xcopy</a></li>
+        <li class="main "><a href="#configure-time-source-for-pdc-server">Configure Time Source for PDC Server</a></li>
         <li class="main "><a href="#iis-logfile-delete-script">IIS logfile delete script</a></li>
         <li class="main "><a href="#ping-detect-script">Ping detect script</a></li>
     </ul>
@@ -115,7 +116,10 @@ Windows 8.1 Enterprise MHF9N-XY6XB-WVXMC-BTDCT-MKKG7 <br />
 Windows 8.1 Enterprise N TT4HM-HN7YT-62K67-RGRQJ-JFFXW<br />
 <strong>Usage:</strong> slmgr.vbs /ipk key</p>
 <h3 id="command-xcopy">Command xcopy</h3>
-<p>xcopy source destination /S /E /D</p>
+<p># xcopy source destination /S /E /D</p>
+<h3 id="configure-time-source-for-pdc-server">Configure Time Source for PDC Server</h3>
+<p># w32tm /query /status
+ # w32tm /config /manualpeerlist:172.17.105.109 /syncfromflags:manual /reliable:yes /update</p>
 <h3 id="iis-logfile-delete-script">IIS logfile delete script</h3>
 <pre><code>@echo off
 set log_dir=&quot;C:\inetpub\logs\LogFiles&quot;
@@ -125,7 +129,7 @@ forfiles /p %log_dir% /S /M *.log /D -%bak_dat% /C &quot;cmd /c echo 正在删�
 
 <h3 id="ping-detect-script">Ping detect script</h3>
 <pre><code>@echo off
-set /p ip=&quot;Please input ip range£¬format:&quot;192.168.1.&quot; &gt;&gt;&gt; &quot;
+set /p ip=&quot;Please input ip range format:&quot;192.168.1.&quot; &gt;&gt;&gt; &quot;
 for /L %%i in (1,1,254) do (
 Ping.exe -n 1 -l 16 -w 100 %ip%%%i&gt;&gt;nul
 if not errorlevel 1 (echo %ip%%%i is online)&gt;&gt;result.txt

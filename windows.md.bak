@@ -17,8 +17,10 @@ Windows 8.1 Professional N HMCNV-VVBFX-7HMBH-CTY9B-B4FXY
 Windows 8.1 Enterprise MHF9N-XY6XB-WVXMC-BTDCT-MKKG7   
 Windows 8.1 Enterprise N TT4HM-HN7YT-62K67-RGRQJ-JFFXW  
 **Usage:** slmgr.vbs /ipk key
-### XCOPY
-xcopy source destination /S /E /D
+### Command xcopy
+ # xcopy source destination /S /E /D
+### Configure Time Source for PDC Server
+ # w32tm /config /manualpeerlist:172.17.105.109 /syncfromflags:manual /reliable:yes /update
 ### IIS logfile delete script
 ```
 @echo off
@@ -29,7 +31,7 @@ forfiles /p %log_dir% /S /M *.log /D -%bak_dat% /C "cmd /c echo 正在删除@rel
 ### Ping detect script
 ```
 @echo off
-set /p ip="Please input ip range£¬format:"192.168.1." >>> "
+set /p ip="Please input ip range format:"192.168.1." >>> "
 for /L %%i in (1,1,254) do (
 Ping.exe -n 1 -l 16 -w 100 %ip%%%i>>nul
 if not errorlevel 1 (echo %ip%%%i is online)>>result.txt

@@ -6,13 +6,15 @@
  # sudo vi /etc/netplan/01-netcfg.yaml  
 ```
 network:
-  ethernets:
-        ens33:
-                addresses: [172.17.105.88/16]
-                gateway4: 172.17.1.250
-                nameservers:
-                        addresses: [202.96.209.5]
   version: 2
+  renderer: networkd
+  ethernets:
+    eno1:
+      addresses: [ 172.17.105.140/16 ]
+      gateway4: 172.17.1.250
+      nameservers:
+          addresses:
+              - "202.96.209.5"
 ```
  # sudo netplan apply  
 **Configure static route**
@@ -23,9 +25,9 @@ network:
             dhcp4: false
             addresses: [192.168.1.81/24]
             routes:
-                   - to: 0.0.0.0/0
-                     via: 192.168.1.1
-                     metric: 30
+                - to: 0.0.0.0/0
+                  via: 192.168.1.1
+                  metric: 30
             optional: true
         eno2:
             addresses: []
@@ -39,9 +41,9 @@ network:
             dhcp4: false
             addresses: [10.202.186.115/27]
             routes:
-                    - to: 10.0.0.0/8
-                      via: 10.202.186.126
-                      metric: 20
+                - to: 10.0.0.0/8
+                  via: 10.202.186.126
+                  metric: 20
             optional: true
     version: 2
 ```
@@ -120,3 +122,6 @@ GRUB_CMDLINE_LINUX="ipv6.disable=1"
 ```
  # sudo update-grub  
  # sudo reboot
+###UFW Usage
+ # sudo ufw enable  
+ # sudo ufw allow from 172.17.105.0/24 to any port 22
