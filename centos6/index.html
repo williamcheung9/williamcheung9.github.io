@@ -88,6 +88,7 @@
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
         <li class="main active"><a href="#install-vm-tools-on-centos-6-minimal">Install vm-tools on CentOS 6 minimal</a></li>
+        <li class="main "><a href="#disable-ipv6">Disable ipv6</a></li>
         <li class="main "><a href="#examples-of-iptables-configuration">Examples of iptables configuration</a></li>
         <li class="main "><a href="#nfs-server-configuration">NFS Server configuration</a></li>
         <li class="main "><a href="#ntp-server-configuration">NTP Server Configuration</a></li>
@@ -106,6 +107,12 @@
  # ./vmware-install.pl<br />
 Start vmtools service manually<br />
   # /etc/vmware-tools/services.sh start</p>
+<h3 id="disable-ipv6">Disable ipv6</h3>
+<p># vi /etc/modprobe.d/dist.conf</p>
+<pre><code>alias net-pf-10 off
+alias ipv6 off
+</code></pre>
+
 <h3 id="examples-of-iptables-configuration">Examples of iptables configuration</h3>
 <p># cat /etc/sysconfig/iptables<br />
 <strong>ip range</strong></p>

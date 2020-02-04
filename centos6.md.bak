@@ -1,5 +1,4 @@
 ### Install vm-tools on CentOS 6 minimal
-<font size=3>
  # yum -y install perl fuse-libs   
  # mount /dev/cdrom /mnt/  
  # cp /mnt/VMwareTools....tar.gz /tmp  
@@ -109,4 +108,3 @@ server ntp1.aliyun.com iburst
   # ipmitool sdr entity 12.1  
   # ipmitool lan print  
   # ipmitool user list 1  
-</font>

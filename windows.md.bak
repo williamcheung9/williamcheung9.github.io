@@ -20,6 +20,7 @@ Windows 8.1 Enterprise N TT4HM-HN7YT-62K67-RGRQJ-JFFXW
 ### Command xcopy
  # xcopy source destination /S /E /D
 ### Configure Time Source for PDC Server
+ # w32tm /query /status
  # w32tm /config /manualpeerlist:172.17.105.109 /syncfromflags:manual /reliable:yes /update
 ### IIS logfile delete script
 ```
