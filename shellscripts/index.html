@@ -12,7 +12,7 @@
         <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../css/font-awesome.min.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/docco.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/agate.min.css">
         <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
         <!--[if lt IE 9]>
             <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -87,6 +87,7 @@
         <li class="main "><a href="#soap-wsdl-web-service">SOAP wsdl web service</a></li>
         <li class="main "><a href="#check-newsletters-by-xinhua-news-agency">Check newsletters by xinhua news agency</a></li>
         <li class="main "><a href="#create-folder-by-date">Create folder by date</a></li>
+        <li class="main "><a href="#synchronize-xinhua-agency-news-scripts">Synchronize Xinhua agency news scripts</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
@@ -437,6 +438,44 @@ fi
 create_folder $DIR_PRI
 create_folder $DIR_SEC
 
+exit 0
+</code></pre>
+
+<h3 id="synchronize-xinhua-agency-news-scripts">Synchronize Xinhua agency news scripts</h3>
+<pre><code>#!/bin/bash
+PATH=/usr/lib64/qt-3.3/bin:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/root/bin
+export PATH
+days=2  #copy dateline
+localdir=/home/ftp
+remotedir=/mnt/xhs
+copydir=(text photo)
+errlog=/opt/scripts/logs/xhscopy.log
+r=$(($RANDOM%2))  #generate random number 0 or 1
+if [ $r -eq 0 ]; then
+    server=&quot;172.25.56.106&quot;
+else
+    server=&quot;172.25.52.107&quot;
+fi
+count=`df -h | grep xhs | wc -l`
+if [ $count -eq 0 ]; then
+    mount -t cifs //$server/data $remotedir -o username=xhsgj,password=xhsgj,codepage=cp936 2&gt;&gt; $errlog
+    if [ $? -ne 0 ]; then
+        echo &quot;`date` cannot visit xhsserver&quot; &gt;&gt; $errlog
+        exit 1
+    fi
+fi
+for(( i=0; i&lt;2; i++))
+do
+    for(( n=0; n&lt;$days; n++ ))
+    do
+        copyday[n]=`date -d &quot;$n day ago&quot; +%Y%m%d`
+        if [ ! -d $localdir/${copydir[i]}/${copyday[n]} ]; then
+            mkdir $localdir/${copydir[i]}/${copyday[n]}
+        fi
+        rsync -r -t --size-only --exclude=&quot;*@tmp@&quot; $remotedir/cnml/input/${copydir[i]}/${copyday[n]}/ $localdir/${copydir[i]}/${copyday[n]}/
+    done
+done
+umount $remotedir
 exit 0
 </code></pre></div>
         </div>

@@ -60,11 +60,14 @@ ul.nav .main {
     }
 }
 
+pre, code {
+    background: #0d747c;
+    border: solid 1px #0a565c;
+    color: #fff;
+}
+
 code {
     padding: 1px 3px;
-    background: #ecf0f1;
-    border: solid 1px #ccc;
-    color: #7b8a8b;
 }
 
 pre code {
@@ -73,7 +76,11 @@ pre code {
 }
 
 a code {
-    color: #18bc9c;
+    color: #e8d069;
+}
+
+a:hover code, a:focus code {
+    color: #debb27;
 }
 
 kbd {
@@ -94,29 +101,31 @@ footer {
 }
 
 .modal-dialog {
-    margin-top: 70px;
+    margin-top: 60px;
 }
 
 /* Style the admonitions. */
 
 .admonition {
     margin-bottom: 21px;
-    border: 1px solid #ecf0f1;
+    border: 1px solid #27666d;
     border-radius: 4px;
     -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.05);
+    background-color: #3cb9c6;
 }
 
 .admonition > .admonition-title {
     margin: 0;
     padding: 10px 15px;
-    border-top-right-radius: 3px;
+    border-bottom: 1px solid #27666d;
     border-top-left-radius: 3px;
-    border-bottom: 1px solid #ecf0f1;
-    color: #2c3e50;
-    background-color: #ecf0f1;
+    border-top-right-radius: 3px;
+    color: #fff;
+    background-color: #8ad5dc;
+    font-family: 'Lobster', cursive;
     font-size: 17px;
-    font-weight: 400;
+    font-weight: 300;
     line-height: 1.1;
 }
 
@@ -136,31 +145,16 @@ footer {
 
 /* Style each kind of admonition. */
 
-.admonition.note, .admonition.note > .admonition-title {
-    border-color: #3498db;
-}
-
 .admonition.note > .admonition-title {
-    color: #fff;
-    background-color: #3498db;
-}
-
-.admonition.warning, .admonition.warning > .admonition-title {
-    border-color: #f39c12;
+    background-color: #4d3a7d;
 }
 
 .admonition.warning > .admonition-title {
-    color: #fff;
-    background-color: #f39c12;
-}
-
-.admonition.danger, .admonition.danger > .admonition-title {
-    border-color: #e74c3c;
+    background-color: #df6e1e;
 }
 
 .admonition.danger > .admonition-title {
-    color: #fff;
-    background-color: #e74c3c;
+    background-color: #ad1d28;
 }
 
 /*
