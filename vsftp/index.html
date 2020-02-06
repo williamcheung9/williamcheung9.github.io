@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Vsftp - ITOps Notes</title>
+        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/agate.min.css">
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap-3.0.3.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+            <div class="container">
+
+                <!-- Collapsed navigation -->
+                <div class="navbar-header">
+                    <!-- Expander button -->
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="..">ITOps Notes</a>
+                </div>
+
+                <!-- Expanded navigation -->
+                <div class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li >
+                                <a href="..">Home</a>
+                            </li>
+                            <li >
+                                <a href="../centos6/">CentOS6</a>
+                            </li>
+                            <li >
+                                <a href="../centos7/">CentOS7</a>
+                            </li>
+                            <li >
+                                <a href="../ubuntu/">Ubuntu18</a>
+                            </li>
+                            <li >
+                                <a href="../windows/">Windows</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav navbar-right">
+                        <li>
+                            <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="main active"><a href="#vsftpd-installation">Vsftpd Installation</a></li>
+        <li class="main "><a href="#modify-configuration-script">Modify configuration script</a></li>
+        <li class="main "><a href="#configure-accounts-password-and-privilege">Configure accounts password and privilege</a></li>
+            <li><a href="#-password">- Password</a></li>
+            <li><a href="#-privilege">- Privilege</a></li>
+        <li class="main "><a href="#exclude-selinux-limited">Exclude selinux limited</a></li>
+        <li class="main "><a href="#allow-vsftp-port-in-firewall">Allow vsftp port in firewall</a></li>
+            <li><a href="#-iptables">- iptables</a></li>
+            <li><a href="#-firewall-cmd">- firewall-cmd</a></li>
+    </ul>
+</div></div>
+                <div class="col-md-9" role="main">
+
+<h3 id="vsftpd-installation">Vsftpd Installation</h3>
+<p># yum -y install vsftpd<br />
+ # yum -y install db4 db4-utils</p>
+<h3 id="modify-configuration-script">Modify configuration script</h3>
+<p><strong>For vsftpd 2.x</strong></p>
+<pre><code>#!/bin/bash
+# for vsftpd 2.x
+base=/etc/vsftpd
+conf=$base/vsftpd.conf
+conf_bak=$base/vsftpd.bak
+user_conf_dir=$base/vuser_conf
+cp -a $conf $conf_bak
+if [ ! -f $conf_bak ]; then
+    echo &quot;backup config file failure and exit&quot;
+    exit 1
+fi
+mkdir $user_conf_dir
+sed -i 's/anonymous_enable=YES/anonymous_enable=NO/' $conf
+sed -i 's/connect_from_port_20=YES/connect_from_port_20=NO/' $conf
+sed -i 's/#idle_session_timeout=600/idle_session_timeout=600/' $conf
+sed -i 's/#ascii_upload_enable=YES/ascii_upload_enable=YES/' $conf
+sed -i 's/#ascii_download_enable=YES/ascii_download_enable=YES/' $conf
+sed -i 's/#chroot_local_user=YES/chroot_local_user=YES/' $conf
+sed -i 's/listen=NO/listen=YES/' $conf
+sed -i 's/listen_ipv6=YES/#listen_ipv6=YES/' $conf
+echo -e &quot;guest_enable=YES
+guest_username=ftp
+user_config_dir=/etc/vsftpd/vuser_conf
+pasv_enable=YES
+pasv_min_port=0
+pasv_max_port=0
+use_localtime=YES&quot; &gt;&gt; $conf
+exit 0
+</code></pre>
+
+<p><strong>For vsftpd 3.x</strong></p>
+<pre><code>#!/bin/bash
+# for vsftpd 3.x
+base=/etc/vsftpd
+conf=$base/vsftpd.conf
+conf_bak=$base/vsftpd.bak
+user_conf_dir=$base/vuser_conf
+cp -a $conf $conf_bak
+if [ ! -f $conf_bak ]; then
+    echo &quot;backup config file failure and exit&quot;
+    exit 1
+fi
+mkdir $user_conf_dir
+sed -i 's/anonymous_enable=YES/anonymous_enable=NO/' $conf
+sed -i 's/connect_from_port_20=YES/connect_from_port_20=NO/' $conf
+sed -i 's/#idle_session_timeout=600/idle_session_timeout=600/' $conf
+sed -i 's/#ascii_upload_enable=YES/ascii_upload_enable=YES/' $conf
+sed -i 's/#ascii_download_enable=YES/ascii_download_enable=YES/' $conf
+sed -i 's/#chroot_local_user=YES/chroot_local_user=YES/' $conf
+sed -i 's/listen=NO/listen=YES/' $conf
+sed -i 's/listen_ipv6=YES/#listen_ipv6=YES/' $conf
+echo -e &quot;guest_enable=YES
+guest_username=ftp
+user_config_dir=/etc/vsftpd/vuser_conf
+pasv_enable=YES
+pasv_min_port=0
+pasv_max_port=0
+use_localtime=YES
+allow_writeable_chroot=YES&quot; &gt;&gt; $conf
+exit 0
+</code></pre>
+
+<p><strong>Attention:Please allow the range of pasv_min_port to pasv_max_port in firewall!</strong></p>
+<h3 id="configure-accounts-password-and-privilege">Configure accounts password and privilege</h3>
+<h4 id="-password">- Password</h4>
+<p># vi /etc/vsftpd/vuser_passwd.txt</p>
+<pre><code>username
+password
+......
+</code></pre>
+
+<p># db_load -T -t hash -f vuser_passwd.txt vuser_passwd.db<br />
+ # vi /etc/pam.d/vsftpd</p>
+<pre><code>auth       required     pam_userdb.so db=/etc/vsftpd/vuser_passwd
+account    required     pam_userdb.so db=/etc/vsftpd/vuser_passwd
+</code></pre>
+
+<p><strong>Attenion:Please add two new lines in this file and comment out any other lines!</strong></p>
+<h4 id="-privilege">- Privilege</h4>
+<p># vi /etc/vsftpd/vuser_conf/username<br />
+<strong>For read only accounts</strong></p>
+<pre><code>local_root=/var/ftp/username
+write_enable=NO
+anon_umask=022
+anon_world_readable_only=YES
+anon_upload_enable=NO
+anon_mkdir_write_enable=NO
+anon_other_write_enable=NO
+</code></pre>
+
+<p><strong>For writable accounts</strong></p>
+<pre><code>local_root=/home/ftp/username
+write_enable=YES
+anon_umask=022
+anon_world_readable_only=NO
+anon_upload_enable=YES
+anon_mkdir_write_enable=YES
+anon_other_write_enable=YES
+</code></pre>
+
+<p><strong>Attention:If the account is writable,please ensure ftp user owned local root directory</strong><br />
+ # chown ftp:ftp /home/ftp/username</p>
+<h3 id="exclude-selinux-limited">Exclude selinux limited</h3>
+<p># getsebool -a | grep ftp<br />
+ # setsebool -P allow_ftpd_full_access on</p>
+<h3 id="allow-vsftp-port-in-firewall">Allow vsftp port in firewall</h3>
+<h4 id="-iptables">- iptables</h4>
+<pre><code>-A INPUT -p tcp --dport 21 -j ACCEPT
+-A INPUT -p tcp -m multiport --dport 2401:2430 -j ACCEPT
+</code></pre>
+
+<p><strong>Attenion:multiport scope is configured by pasv port</strong></p>
+<h4 id="-firewall-cmd">- firewall-cmd</h4>
+<p># firewall-cmd --permanent --zone=public --add-service=ftp</p></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>Documentation built with <a href="https://www.mkdocs.org/">MkDocs</a>.</p>
+        </footer>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js" defer></script>
+        <script src="../search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form role="form">
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="Keyboard Shortcuts Modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="exampleModalLabel">Keyboard Shortcuts</h4>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
