@@ -126,7 +126,7 @@ alias ipv6 off
 </code></pre>
 
 <p><strong>multi port</strong>  </p>
-<pre><code>-A INPUT -p tcp -m multiport --dports 22,53,80 -j ACCEPT
+<pre><code class="hljs css">-A INPUT -p tcp -m multiport --dports 22,53,80 -j ACCEPT
 -A INPUT -s 172.17.0.0/16 -p tcp -m multiport --dport 2415:2430 -j ACCEPT
 </code></pre>
 
@@ -160,7 +160,7 @@ MOUNTD_PORT=1002
  # rpcinfo -p<br />
 <strong>Add NFS server port to iptables</strong><br />
  # vi /etc/sysconfig/iptables</p>
-<pre><code>-A INPUT -s 172.17.105.0/24 -p tcp -m multiport --dport 111,875,892,32769,32803 -j ACCEPT
+<pre><code class="hljs css">-A INPUT -s 172.17.105.0/24 -p tcp -m multiport --dport 111,875,892,32769,32803 -j ACCEPT
 -A INPUT -s 172.17.105.0/24 -p udp -m multiport --dport 111,875,892,32769,32803 -j ACCEPT
 </code></pre>
 
@@ -186,7 +186,7 @@ server ntp1.aliyun.com iburst
 
 <p><strong>Add port to iptables</strong><br />
  # cat /etc/sysconfig/iptables  </p>
-<pre><code>-A INPUT -p udp --dport 123 -j ACCEPT
+<pre><code class="hljs css">-A INPUT -p udp --dport 123 -j ACCEPT
 </code></pre>
 
 <p><strong>Start service</strong><br />
@@ -219,7 +219,7 @@ DocumentRoot &quot;/home/ftp&quot;
  # chkconfig --level 3 httpd on
 <strong>Add port to iptables</strong><br />
  # vi /etc/sysconfig/iptables  </p>
-<pre><code>-A INPUT -s 172.17.0.0/16 -p tcp --dport 9000 -j ACCEPT
+<pre><code class="hljs css">-A INPUT -s 172.17.0.0/16 -p tcp --dport 9000 -j ACCEPT
 </code></pre>
 
 <p># /etc/init.d/iptables restart
