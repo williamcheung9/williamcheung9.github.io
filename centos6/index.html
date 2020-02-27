@@ -92,6 +92,7 @@
         <li class="main "><a href="#examples-of-iptables-configuration">Examples of iptables configuration</a></li>
         <li class="main "><a href="#nfs-server-configuration">NFS Server configuration</a></li>
         <li class="main "><a href="#ntp-server-configuration">NTP Server Configuration</a></li>
+        <li class="main "><a href="#apache-server-configuration">Apache Server Configuration</a></li>
         <li class="main "><a href="#ipmi-tool">IPMI Tool</a></li>
     </ul>
 </div></div>
@@ -194,6 +195,36 @@ server ntp1.aliyun.com iburst
  # chkconfig --level 3 ntpd on<br />
 <strong>Query NTP Server current state</strong><br />
  # ntpq -p</p>
+<h3 id="apache-server-configuration">Apache Server Configuration</h3>
+<p><strong>Install Apache Server from repository</strong><br />
+ # yum install httpd -y<br />
+<strong>Modify httpd configure file</strong><br />
+ # vi /etc/httpd/conf/httpd.conf</p>
+<pre><code>Listen 172.25.24.83:9000
+ServerName localhost:80
+DocumentRoot &quot;/home/ftp&quot;
+&lt;Directory &quot;/home/ftp&quot;&gt;
+    Options Indexes FollowSymLinks
+    AllowOverride None
+    Order allow,deny
+    Allow from all
+&lt;/Directory&gt;
+</code></pre>
+
+<p><strong>Modify security context</strong><br />
+ # chcon -R -t httpd_sys_content_t /home/ftp<br />
+<strong>List selinux http port policy</strong><br />
+ # semanage port -l | grep http<br />
+<strong>Enable system startup service</strong><br />
+ # chkconfig --level 3 httpd on
+<strong>Add port to iptables</strong><br />
+ # vi /etc/sysconfig/iptables  </p>
+<pre><code>-A INPUT -s 172.17.0.0/16 -p tcp --dport 9000 -j ACCEPT
+</code></pre>
+
+<p># /etc/init.d/iptables restart
+<strong>Startup httpd service</strong><br />
+ # /etc/init.d/httpd start</p>
 <h3 id="ipmi-tool">IPMI Tool</h3>
 <p><strong>Check BMC Controllor</strong><br />
   # dmidecode -t 38<br />
