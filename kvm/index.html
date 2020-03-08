@@ -8,7 +8,7 @@
         
         
         <link rel="shortcut icon" href="../img/favicon.ico">
-        <title>Vsftp - ITOps Notes</title>
+        <title>Kvm - ITOps Notes</title>
         <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
         <link href="../css/font-awesome.min.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
@@ -64,8 +64,8 @@
                             <li >
                                 <a href="../zabbix/">Zabbix</a>
                             </li>
-                            <li class="active">
-                                <a href="./">Vsftp</a>
+                            <li >
+                                <a href="../vsftp/">Vsftp</a>
                             </li>
                         </ul>
 
@@ -75,16 +75,6 @@
                                 <i class="fa fa-search"></i> Search
                             </a>
                         </li>
-                            <li >
-                                <a rel="next" href="../zabbix/">
-                                    <i class="fa fa-arrow-left"></i> Previous
-                                </a>
-                            </li>
-                            <li class="disabled">
-                                <a rel="prev" >
-                                    Next <i class="fa fa-arrow-right"></i>
-                                </a>
-                            </li>
                     </ul>
                 </div>
             </div>
@@ -93,138 +83,37 @@
         <div class="container">
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
-        <li class="main active"><a href="#vsftpd-installation">Vsftpd Installation</a></li>
-        <li class="main "><a href="#modify-configuration-script">Modify configuration script</a></li>
-        <li class="main "><a href="#configure-accounts-password-and-privilege">Configure accounts password and privilege</a></li>
-            <li><a href="#-password">- Password</a></li>
-            <li><a href="#-privilege">- Privilege</a></li>
-        <li class="main "><a href="#exclude-selinux-limited">Exclude selinux limited</a></li>
-        <li class="main "><a href="#allow-vsftp-port-in-firewall">Allow vsftp port in firewall</a></li>
-            <li><a href="#-iptables">- iptables</a></li>
-            <li><a href="#-firewall-cmd">- firewall-cmd</a></li>
+        <li class="main active"><a href="#install-kvm-on-centos-7">Install KVM on CentOS 7</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
 
-<h3 id="vsftpd-installation">Vsftpd Installation</h3>
-<p># yum -y install vsftpd<br />
- # yum -y install db4 db4-utils</p>
-<h3 id="modify-configuration-script">Modify configuration script</h3>
-<p><strong>For vsftpd 2.x</strong></p>
-<pre><code>#!/bin/bash
-# for vsftpd 2.x
-base=/etc/vsftpd
-conf=$base/vsftpd.conf
-conf_bak=$base/vsftpd.bak
-user_conf_dir=$base/vuser_conf
-cp -a $conf $conf_bak
-if [ ! -f $conf_bak ]; then
-    echo &quot;backup config file failure and exit&quot;
-    exit 1
-fi
-mkdir $user_conf_dir
-sed -i 's/anonymous_enable=YES/anonymous_enable=NO/' $conf
-sed -i 's/connect_from_port_20=YES/connect_from_port_20=NO/' $conf
-sed -i 's/#idle_session_timeout=600/idle_session_timeout=600/' $conf
-sed -i 's/#ascii_upload_enable=YES/ascii_upload_enable=YES/' $conf
-sed -i 's/#ascii_download_enable=YES/ascii_download_enable=YES/' $conf
-sed -i 's/#chroot_local_user=YES/chroot_local_user=YES/' $conf
-sed -i 's/listen=NO/listen=YES/' $conf
-sed -i 's/listen_ipv6=YES/#listen_ipv6=YES/' $conf
-echo -e &quot;guest_enable=YES
-guest_username=ftp
-user_config_dir=/etc/vsftpd/vuser_conf
-pasv_enable=YES
-pasv_min_port=0
-pasv_max_port=0
-use_localtime=YES&quot; &gt;&gt; $conf
-exit 0
+<h3 id="install-kvm-on-centos-7">Install KVM on CentOS 7</h3>
+<p><strong>Install from yum repository</strong><br />
+ # yum install qemu-kvm -y<br />
+ # yum install libvirt -y<br />
+ # yum install virt-install -y<br />
+<strong>Startup libvirt service</strong><br />
+ # systemctl enable libvirtd<br />
+ # systemctl start libvirtd<br />
+<strong>Create linux brige</strong><br />
+ # nmtui<br />
+ # brctl show
+<strong>Selinux deny qemu use nfs</strong><br />
+ # setsebool virt_use_nfs on<br />
+<strong>Modify virtual machine configuration</strong><br />
+ # virsh edit machine_name</p>
+<pre><code>    &lt;interface type='bridge'&gt;
+      &lt;mac address='52:54:00:9b:3c:19'/&gt;
+      &lt;source bridge='br0'/&gt;
+      &lt;model type='virtio'/&gt;
+      &lt;address type='pci' domain='0x0000' bus='0x00' slot='0x03' function='0x0'/&gt;
+    &lt;/interface&gt;
 </code></pre>
 
-<p><strong>For vsftpd 3.x</strong></p>
-<pre><code>#!/bin/bash
-# for vsftpd 3.x
-base=/etc/vsftpd
-conf=$base/vsftpd.conf
-conf_bak=$base/vsftpd.bak
-user_conf_dir=$base/vuser_conf
-cp -a $conf $conf_bak
-if [ ! -f $conf_bak ]; then
-    echo &quot;backup config file failure and exit&quot;
-    exit 1
-fi
-mkdir $user_conf_dir
-sed -i 's/anonymous_enable=YES/anonymous_enable=NO/' $conf
-sed -i 's/connect_from_port_20=YES/connect_from_port_20=NO/' $conf
-sed -i 's/#idle_session_timeout=600/idle_session_timeout=600/' $conf
-sed -i 's/#ascii_upload_enable=YES/ascii_upload_enable=YES/' $conf
-sed -i 's/#ascii_download_enable=YES/ascii_download_enable=YES/' $conf
-sed -i 's/#chroot_local_user=YES/chroot_local_user=YES/' $conf
-sed -i 's/listen=NO/listen=YES/' $conf
-sed -i 's/listen_ipv6=YES/#listen_ipv6=YES/' $conf
-echo -e &quot;guest_enable=YES
-guest_username=ftp
-user_config_dir=/etc/vsftpd/vuser_conf
-pasv_enable=YES
-pasv_min_port=0
-pasv_max_port=0
-use_localtime=YES
-allow_writeable_chroot=YES&quot; &gt;&gt; $conf
-exit 0
-</code></pre>
-
-<p><strong>Attention:Please allow the range of pasv_min_port to pasv_max_port in firewall!</strong></p>
-<h3 id="configure-accounts-password-and-privilege">Configure accounts password and privilege</h3>
-<h4 id="-password">- Password</h4>
-<p># vi /etc/vsftpd/vuser_passwd.txt</p>
-<pre><code>username
-password
-......
-</code></pre>
-
-<p># db_load -T -t hash -f vuser_passwd.txt vuser_passwd.db<br />
- # vi /etc/pam.d/vsftpd</p>
-<pre><code>auth       required     pam_userdb.so db=/etc/vsftpd/vuser_passwd
-account    required     pam_userdb.so db=/etc/vsftpd/vuser_passwd
-</code></pre>
-
-<p><strong>Attenion:Please add two new lines in this file and comment out any other lines!</strong></p>
-<h4 id="-privilege">- Privilege</h4>
-<p># vi /etc/vsftpd/vuser_conf/username<br />
-<strong>For read only accounts</strong></p>
-<pre><code>local_root=/var/ftp/username
-write_enable=NO
-anon_umask=022
-anon_world_readable_only=YES
-anon_upload_enable=NO
-anon_mkdir_write_enable=NO
-anon_other_write_enable=NO
-</code></pre>
-
-<p><strong>For writable accounts</strong></p>
-<pre><code>local_root=/home/ftp/username
-write_enable=YES
-anon_umask=022
-anon_world_readable_only=NO
-anon_upload_enable=YES
-anon_mkdir_write_enable=YES
-anon_other_write_enable=YES
-</code></pre>
-
-<p><strong>Attention:If the account is writable,please ensure ftp user owned local root directory</strong><br />
- # chown ftp:ftp /home/ftp/username</p>
-<h3 id="exclude-selinux-limited">Exclude selinux limited</h3>
-<p># getsebool -a | grep ftp<br />
- # setsebool -P allow_ftpd_full_access on</p>
-<h3 id="allow-vsftp-port-in-firewall">Allow vsftp port in firewall</h3>
-<h4 id="-iptables">- iptables</h4>
-<pre><code class="hljs css">-A INPUT -p tcp --dport 21 -j ACCEPT
--A INPUT -p tcp -m multiport --dport 2401:2430 -j ACCEPT
-</code></pre>
-
-<p><strong>Attenion:multiport scope is configured by pasv port</strong></p>
-<h4 id="-firewall-cmd">- firewall-cmd</h4>
-<p># firewall-cmd --permanent --zone=public --add-service=ftp</p></div>
+<p><strong>Some of virsh commands</strong><br />
+ # virsh list --all<br />
+ # virsh start machine_name</p></div>
         </div>
 
         <footer class="col-md-12">

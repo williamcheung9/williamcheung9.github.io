@@ -50,6 +50,9 @@
                                 <a href="..">Home</a>
                             </li>
                             <li >
+                                <a href="../github/">Github</a>
+                            </li>
+                            <li >
                                 <a href="../centos6/">CentOS6</a>
                             </li>
                             <li class="active">
@@ -59,7 +62,10 @@
                                 <a href="../ubuntu/">Ubuntu18</a>
                             </li>
                             <li >
-                                <a href="../windows/">Windows</a>
+                                <a href="../zabbix/">Zabbix</a>
+                            </li>
+                            <li >
+                                <a href="../vsftp/">Vsftp</a>
                             </li>
                         </ul>
 
@@ -191,13 +197,14 @@ http_port_t    tcp   12345, 80, 443, 488, 8008, 8009, 8443<br />
 # firewall-cmd --zone=public --add-service=ftp --permanent<br />
 # firewall-cmd --zone=public --add-rich-rule='rule family="ipv4" source address="172.17.105.0/24" service name="ssh" accept' --permanent<br />
 # firewall-cmd --zone=public --add-rich-rule='rule family="ipv4" source address="172.17.105.0/24" port port="80" protocol="tcp" accept' --permanent<br />
-# firewall-cmd --zone=public --add-rich-rule='rule family="ipv4" destination address="172.17.107.68" service name="ftp" accept' --permanent  </p>
-<p># firewall-cmd --list-all<br />
+# firewall-cmd --zone=public --add-rich-rule='rule family="ipv4" destination address="172.17.107.68" service name="ftp" accept' --permanent<br />
+# firewall-cmd --list-all<br />
+ # firewall-cmd --get-zones<br />
+ # firewall-cmd --get-zone-of-interface=ens33<br />
 # firewall-cmd --zone=internal --list-all<br />
 # firewall-cmd --zone=external --list-all<br />
 # firewall-cmd --zone=dmz --list-all<br />
-# firewall-cmd --zone-work --list-all  </p>
-<p># firewall-cmd --zone=work --add-interface=ens37 --permanent<br />
+# firewall-cmd --zone=work --add-interface=ens37 --permanent<br />
 # firewall-cmd --zone=work --remove-service=ssh --permanent</p>
 <h3 id="network-command">Network Command</h3>
 <p># ip addr <br />
@@ -222,10 +229,17 @@ If you want to use CentOS 6 network command,please install <em>net-tools</em> pa
  # ss -natp | column -t<br />
  # ss -not | column -t</p>
 <h3 id="install-cockpit">Install cockpit</h3>
-<p># yum -y install cockpit<br />
+<p># yum install cockpit -y<br />
 # firewall-cmd --zone=public --add-service=cockpit --permanent<br />
 # systemctl enable cockpit.socket<br />
-https://172.17.105.81:9090</p>
+<strong>For virtual machines</strong><br />
+ # yum install cockpit-machines.x86_64 -y<br />
+<strong>Bind ip address</strong><br />
+ # vi /etc/systemd/system/sockets.target.wants/cockpit.socket</p>
+<pre><code>ListenStream=0.0.0.0:9090
+</code></pre>
+
+<p><strong>Attention:If ipv6 is disabled,the listening ip address should be bind to ipv4</strong></p>
 <h3 id="install-webmin">Install webmin</h3>
 <pre><code>echo &quot;[Webmin]
 name=Webmin Distribution Neutral
