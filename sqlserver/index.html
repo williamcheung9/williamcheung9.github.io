@@ -201,7 +201,7 @@ Connect to Server from SSMS,then execute following sql command:</p>
 </code></pre>
 
 <p><strong>Retore Database</strong><br />
-Connect to Server from SSMS,then create the databse by gui or sql command.If you want to restore the database via gui,a promblem about sql file path may happen,but you can aviod the problem in sql command.The example of command to restore a database:</p>
+Connect to Server from SSMS,then create the databse by gui or sql command.If you want to restore the database via gui,a problem about sql file path may happen,but you can aviod the problem in sql command.The example of command to restore a database:</p>
 <pre><code>RESTORE DATABASE [newseditv2_xm] FROM  DISK = '/home/user/newseditv2_backup_2020_03_13_040003_7247911.bak' WITH  FILE = 1,  
 MOVE 'newseditv2' TO '/var/opt/mssql/data/newsedit/newseditv2_xm.mdf',  
 MOVE 'newseditv2_log' TO '/var/opt/mssql/data/newsedit/newseditv2_xm_log.ldf',  
