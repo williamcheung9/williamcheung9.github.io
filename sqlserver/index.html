@@ -83,15 +83,20 @@
         <div class="container">
                 <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
     <ul class="nav bs-sidenav">
-        <li class="main active"><a href="#create-ufida-hr-database">Create Ufida HR database</a></li>
+        <li class="main active"><a href="#reference-documentation">Reference documentation</a></li>
+        <li class="main "><a href="#create-ufida-hr-database">Create Ufida HR database</a></li>
         <li class="main "><a href="#create-founder-newsedit-database">Create Founder newsedit database</a></li>
         <li class="main "><a href="#restore-founder-newsedit-database">Restore Founder newsedit database</a></li>
         <li class="main "><a href="#sql-server-2005-restore-master-database">SQL Server 2005 restore master database</a></li>
         <li class="main "><a href="#clear-the-transation-log">Clear the transation log</a></li>
+        <li class="main "><a href="#sql-server-2017-on-linux">SQL Server 2017 on Linux</a></li>
+        <li class="main "><a href="#python-mssql-module">Python MSSQL Module</a></li>
     </ul>
 </div></div>
                 <div class="col-md-9" role="main">
 
+<h3 id="reference-documentation">Reference documentation</h3>
+<p><a href="https://docs.microsoft.com/en-us/sql/linux/quickstart-install-connect-ubuntu?view=sql-server-linux-2017">SQL Server 2017 on Ubuntu</a></p>
 <h3 id="create-ufida-hr-database">Create Ufida HR database</h3>
 <pre><code>use master;
 create database byjthr
@@ -174,7 +179,56 @@ GO
 
 ALTER DATABASE newseditv2 SET RECOVERY FULL; 
 GO
-</code></pre></div>
+</code></pre>
+
+<h3 id="sql-server-2017-on-linux">SQL Server 2017 on Linux</h3>
+<p><strong>Installation on Ubuntu</strong><br />
+ # wget -qO- https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -<br />
+ # sudo add-apt-repository "$(wget -qO- https://packages.microsoft.com/config/ubuntu/16.04/mssql-server-2017.list)"<br />
+ # sudo apt-get update<br />
+ # sudo apt-get install mssql-server -y<br />
+<strong>Configure SQL Server</strong><br />
+ # sudo /opt/mssql/bin/mssql-conf setup<br />
+<strong>Startup SQL Server</strong><br />
+ # sudo systemctl start mssql-server<br />
+<strong>Add rules of firewall</strong><br />
+ # sudo ufw allow from 172.17.105.0/24 to any port 1433<br />
+<strong>Check Database Edition</strong><br />
+Connect to Server from SSMS,then execute following sql command:</p>
+<pre><code>SELECT  SERVERPROPERTY('productlevel') AS 'Service Pack' ,
+        SERVERPROPERTY('edition') AS edition ,
+        SERVERPROPERTY('productversion') AS 'build number'
+</code></pre>
+
+<p><strong>Retore Database</strong><br />
+Connect to Server from SSMS,then create the databse by gui or sql command.If you want to restore the database via gui,a promblem about sql file path may happen,but you can aviod the problem in sql command.The example of command to restore a database:</p>
+<pre><code>RESTORE DATABASE [newseditv2_xm] FROM  DISK = '/home/user/newseditv2_backup_2020_03_13_040003_7247911.bak' WITH  FILE = 1,  
+MOVE 'newseditv2' TO '/var/opt/mssql/data/newsedit/newseditv2_xm.mdf',  
+MOVE 'newseditv2_log' TO '/var/opt/mssql/data/newsedit/newseditv2_xm_log.ldf',  
+NOUNLOAD,  REPLACE,  STATS = 10
+GO
+</code></pre>
+
+<h3 id="python-mssql-module">Python MSSQL Module</h3>
+<p><strong>Install mssql module</strong><br />
+ # pip3 install pymssql<br />
+<strong>Connect databse</strong></p>
+<pre><code>import pymssql
+conn = pymssql.connect('192.168.152.109', 'sa', 'password', 'database_name')
+</code></pre>
+
+<p><strong>Execute SQL query</strong></p>
+<pre><code>sql = '''
+    SELECT * FROM DOM_2_DOCLIB
+    WHERE SYS_LASTMODIFIED BETWEEN CONVERT(datetime,%s) AND CONVERT(datetime,%s)
+    '''
+date_tuple = ('2020-01-01', '2020-01-08')
+cursor = conn.cursor()
+cursor.execute(sql, date_tuple)
+result = cursor.fetchall()
+</code></pre>
+
+<p>NOTE:The result type is tuple.</p></div>
         </div>
 
         <footer class="col-md-12">
