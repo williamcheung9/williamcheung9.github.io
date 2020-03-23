@@ -9,79 +9,66 @@
         
         <link rel="shortcut icon" href="../img/favicon.ico">
         <title>CentOS7 - ITOps Notes</title>
-        <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
         <link href="../css/font-awesome.min.css" rel="stylesheet">
         <link href="../css/base.css" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/agate.min.css">
-        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-        <!--[if lt IE 9]>
-            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-        <![endif]-->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
 
         <script src="../js/jquery-1.10.2.min.js" defer></script>
-        <script src="../js/bootstrap-3.0.3.min.js" defer></script>
+        <script src="../js/bootstrap.min.js" defer></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
         <script>hljs.initHighlightingOnLoad();</script> 
     </head>
 
     <body>
-
-        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
             <div class="container">
-
-                <!-- Collapsed navigation -->
-                <div class="navbar-header">
-                    <!-- Expander button -->
-                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" href="..">ITOps Notes</a>
-                </div>
+                <a class="navbar-brand" href="..">ITOps Notes</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
 
                 <!-- Expanded navigation -->
-                <div class="navbar-collapse collapse">
+                <div id="navbar-collapse" class="navbar-collapse collapse">
                         <!-- Main navigation -->
                         <ul class="nav navbar-nav">
-                            <li >
-                                <a href="..">Home</a>
+                            <li class="navitem">
+                                <a href=".." class="nav-link">Home</a>
                             </li>
-                            <li >
-                                <a href="../github/">Github</a>
+                            <li class="navitem">
+                                <a href="../github/" class="nav-link">Github</a>
                             </li>
-                            <li >
-                                <a href="../centos6/">CentOS6</a>
+                            <li class="navitem">
+                                <a href="../centos6/" class="nav-link">CentOS6</a>
                             </li>
-                            <li class="active">
-                                <a href="./">CentOS7</a>
+                            <li class="navitem active">
+                                <a href="./" class="nav-link">CentOS7</a>
                             </li>
-                            <li >
-                                <a href="../ubuntu/">Ubuntu18</a>
+                            <li class="navitem">
+                                <a href="../ubuntu/" class="nav-link">Ubuntu18</a>
                             </li>
-                            <li >
-                                <a href="../zabbix/">Zabbix</a>
+                            <li class="navitem">
+                                <a href="../zabbix/" class="nav-link">Zabbix</a>
                             </li>
-                            <li >
-                                <a href="../vsftp/">Vsftp</a>
+                            <li class="navitem">
+                                <a href="../vsftp/" class="nav-link">Vsftp</a>
                             </li>
                         </ul>
 
-                    <ul class="nav navbar-nav navbar-right">
-                        <li>
-                            <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
                                 <i class="fa fa-search"></i> Search
                             </a>
                         </li>
-                            <li >
-                                <a rel="next" href="../centos6/">
+                            <li class="nav-item">
+                                <a rel="prev" href="../centos6/" class="nav-link">
                                     <i class="fa fa-arrow-left"></i> Previous
                                 </a>
                             </li>
-                            <li >
-                                <a rel="prev" href="../ubuntu/">
+                            <li class="nav-item">
+                                <a rel="next" href="../ubuntu/" class="nav-link">
                                     Next <i class="fa fa-arrow-right"></i>
                                 </a>
                             </li>
@@ -91,27 +78,37 @@
         </div>
 
         <div class="container">
-                <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
-    <ul class="nav bs-sidenav">
-        <li class="main active"><a href="#reference-documentation">Reference documentation</a></li>
-        <li class="main "><a href="#install-vm-tools-on-centos-7-minimal">Install vm-tools on CentOS 7 minimal</a></li>
-        <li class="main "><a href="#configure-system-proxy">Configure system proxy</a></li>
-        <li class="main "><a href="#set-yum-repository-to-aliyun-mirror">Set yum repository to aliyun mirror</a></li>
-        <li class="main "><a href="#disable-selinux">Disable selinux</a></li>
-        <li class="main "><a href="#run-command-as-another-user">Run command as another user</a></li>
-        <li class="main "><a href="#bash-command-auto-completion">Bash command auto completion</a></li>
-        <li class="main "><a href="#disable-ipv6">Disable ipv6</a></li>
-        <li class="main "><a href="#synchronizing-time-with-ntp-server">Synchronizing time with NTP server</a></li>
-        <li class="main "><a href="#examples-of-selinux-command">Examples of selinux command</a></li>
-        <li class="main "><a href="#change-default-ssh-port">Change default SSH port</a></li>
-        <li class="main "><a href="#change-apache-server-port">Change apache server port</a></li>
-        <li class="main "><a href="#examples-of-command-firewall-cmd">Examples of command firewall-cmd</a></li>
-        <li class="main "><a href="#network-command">Network Command</a></li>
-        <li class="main "><a href="#install-cockpit">Install cockpit</a></li>
-        <li class="main "><a href="#install-webmin">Install webmin</a></li>
-    </ul>
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+        </ul>
+    </div>
 </div></div>
-                <div class="col-md-9" role="main">
+                    <div class="col-md-9" role="main">
 
 <h3 id="reference-documentation">Reference documentation</h3>
 <p><a href="https://opsx.alibaba.com/mirror">Aliyun OPSX mirros</a><br />
@@ -252,6 +249,7 @@ gpgkey=http://www.webmin.com/jcameron-key.asc&quot; &gt;/etc/yum.repos.d/webmin.
 <p># yum install webmin -y<br />
  # firewall-cmd --zone=public --add-port=10000/tcp --permanent<br />
  https://172.17.105.81:10000</p></div>
+            </div>
         </div>
 
         <footer class="col-md-12">
@@ -265,19 +263,19 @@ gpgkey=http://www.webmin.com/jcameron-key.asc&quot; &gt;/etc/yum.repos.d/webmin.
         <script src="../js/base.js" defer></script>
         <script src="../search/main.js" defer></script>
 
-        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
-    <div class="modal-dialog">
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title" id="exampleModalLabel">Search</h4>
             </div>
             <div class="modal-body">
                 <p>
                     From here you can search these documents. Enter
                     your search terms below.
                 </p>
-                <form role="form">
+                <form>
                     <div class="form-group">
                         <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
                     </div>
@@ -288,12 +286,12 @@ gpgkey=http://www.webmin.com/jcameron-key.asc&quot; &gt;/etc/yum.repos.d/webmin.
             </div>
         </div>
     </div>
-</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="Keyboard Shortcuts Modal" aria-hidden="true">
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
                 <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-                <h4 class="modal-title" id="exampleModalLabel">Keyboard Shortcuts</h4>
             </div>
             <div class="modal-body">
               <table class="table">
